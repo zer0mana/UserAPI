@@ -3,3 +3,5 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+ClientApp/node_modules/
+UserAPI/ClientApp/node_modules/

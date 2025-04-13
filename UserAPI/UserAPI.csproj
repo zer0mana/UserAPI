@@ -13,4 +13,8 @@
       <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="ClientApp\public\" />
+    </ItemGroup>
+
 </Project>

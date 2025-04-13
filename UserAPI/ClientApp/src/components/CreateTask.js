@@ -43,19 +43,12 @@ const CreateTask = () => {
     setError(null);
 
     try {
-      // Здесь будет реальный userId, в данном примере используем 1
-      const userId = 1;
-      
       // Создаем задачу
-      await axios.post('/pyd-user-api-handler/create-pyd', {
-        pydId: listId,
-        userId: userId,
-        task: {
-          title: formData.title,
-          description: formData.description,
-          priority: formData.priority,
-          dueDate: formData.dueDate || null
-        }
+      await axios.post(`/pyd-user-api-handler/create-task?pydId=${listId}`, {
+        title: formData.title,
+        description: formData.description,
+        priority: formData.priority,
+        dueDate: formData.dueDate || null
       });
 
       // Перенаправляем на страницу списка задач

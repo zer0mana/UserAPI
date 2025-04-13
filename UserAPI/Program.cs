@@ -1,4 +1,5 @@
 using FluentValidation.AspNetCore;
+using UserAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,13 +14,16 @@ builder.Services.AddFluentValidation(conf =>
     conf.AutomaticValidationEnabled = true;
 });
 
+builder.Services.AddSingleton<IToDoTaskService, ToDoTaskService>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
         builder => builder
-            .WithOrigins("http://localhost:3000") // URL React-приложения
+            .WithOrigins("http://localhost:3000", "http://localhost:3001", "http://localhost:3007")
             .AllowAnyMethod()
-            .AllowAnyHeader());
+            .AllowAnyHeader()
+            .AllowCredentials());
 });
 
 var app = builder.Build();

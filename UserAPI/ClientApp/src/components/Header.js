@@ -1,8 +1,20 @@
 import React from 'react';
 import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 const Header = () => {
+  const navigate = useNavigate();
+  const userId = localStorage.getItem('userId');
+
+  const handleLogout = () => {
+    localStorage.removeItem('userId');
+    navigate('/login');
+  };
+
+  if (!userId) {
+    return null;
+  }
+
   return (
     <AppBar position="static">
       <Toolbar>
@@ -15,6 +27,9 @@ const Header = () => {
           </Button>
           <Button color="inherit" component={RouterLink} to="/create-task-list">
             Создать список
+          </Button>
+          <Button color="inherit" onClick={handleLogout}>
+            Выйти
           </Button>
         </Box>
       </Toolbar>
