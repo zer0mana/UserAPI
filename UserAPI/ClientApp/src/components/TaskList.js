@@ -30,7 +30,7 @@ import { ru } from 'date-fns/locale';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import axios from 'axios';
+import taskService from '../services/taskService';
 
 const TaskList = () => {
   const { id } = useParams();
@@ -54,18 +54,11 @@ const TaskList = () => {
   useEffect(() => {
     const fetchTaskList = async () => {
       try {
-        const userDayNumber = localStorage.getItem('userId');
-        if (!userDayNumber) {
-          setError('Пользователь не авторизован');
-          setLoading(false);
-          return;
-        }
-
-        const response = await axios.get(`/pyd-user-api-handler/view-pyd/${id}?userDayNumber=${parseInt(userDayNumber, 10)}`);
-        console.log('Ответ от сервера при загрузке списка задач:', response.data);
-        setTitle(response.data.title);
-        setDescription(response.data.description || '');
-        setTasks(response.data.toDoTasks || []);
+        const response = await taskService.getTaskList(id);
+        console.log('Ответ от сервера при загрузке списка задач:', response);
+        setTitle(response.title);
+        setDescription(response.description || '');
+        setTasks(response.toDoTasks || []);
         setLoading(false);
       } catch (err) {
         console.error('Ошибка при загрузке списка задач:', err);
@@ -105,27 +98,20 @@ const TaskList = () => {
 
   const handleTaskSubmit = async () => {
     try {
-      const userDayNumber = localStorage.getItem('userId');
-      if (!userDayNumber) {
-        setError('Пользователь не авторизован');
-        return;
-      }
-
       console.log('Отправка данных задачи:', taskForm);
 
       if (editingTask) {
         // Обновление существующей задачи
-        await axios.put(`/pyd-user-api-handler/update-task?pydId=${id}&taskId=${editingTask.id}`, taskForm);
+        await taskService.updateTask(id, editingTask.id, taskForm.title, taskForm.description, taskForm.priority, taskForm.dueDate);
       } else {
         // Создание новой задачи
-        const createResponse = await axios.post(`/pyd-user-api-handler/create-task?pydId=${id}`, taskForm);
-        console.log('Ответ при создании задачи:', createResponse.data);
+        await taskService.createTask(id, taskForm.title, taskForm.description, taskForm.priority, taskForm.dueDate);
       }
 
       // Обновляем список задач
-      const response = await axios.get(`/pyd-user-api-handler/view-pyd/${id}?userDayNumber=${parseInt(userDayNumber, 10)}`);
-      console.log('Ответ при обновлении списка задач:', response.data);
-      setTasks(response.data.toDoTasks || []);
+      const response = await taskService.getTaskList(id);
+      console.log('Ответ при обновлении списка задач:', response);
+      setTasks(response.toDoTasks || []);
       
       handleCloseTaskDialog();
     } catch (err) {
@@ -136,36 +122,24 @@ const TaskList = () => {
 
   const handleDeleteTask = async (taskId) => {
     try {
-      const userDayNumber = localStorage.getItem('userId');
-      if (!userDayNumber) {
-        setError('Пользователь не авторизован');
-        return;
-      }
-
-      await axios.delete(`/pyd-user-api-handler/delete-task?pydId=${id}&taskId=${taskId}`);
+      await taskService.deleteTask(id, taskId);
       
       // Обновляем список задач
-      const response = await axios.get(`/pyd-user-api-handler/view-pyd/${id}?userDayNumber=${parseInt(userDayNumber, 10)}`);
-      setTasks(response.data.toDoTasks || []);
+      const response = await taskService.getTaskList(id);
+      setTasks(response.toDoTasks || []);
     } catch (err) {
       console.error('Ошибка при удалении задачи:', err);
       setError('Не удалось удалить задачу. Пожалуйста, попробуйте позже.');
     }
   };
 
-  const handleTaskCompletion = async (taskId, completed) => {
+  const handleTaskCompletion = async (taskId) => {
     try {
-      const userDayNumber = localStorage.getItem('userId');
-      if (!userDayNumber) {
-        setError('Пользователь не авторизован');
-        return;
-      }
-
-      await axios.post(`/pyd-user-api-handler/mark-pyd-task-completed?pydId=${id}&taskId=${taskId}`);
+      await taskService.markTaskCompleted(id, taskId);
 
       // Обновляем список задач
-      const response = await axios.get(`/pyd-user-api-handler/view-pyd/${id}?userDayNumber=${parseInt(userDayNumber, 10)}`);
-      setTasks(response.data.toDoTasks || []);
+      const response = await taskService.getTaskList(id);
+      setTasks(response.toDoTasks || []);
     } catch (err) {
       console.error('Ошибка при обновлении статуса задачи:', err);
       setError('Не удалось обновить статус задачи. Пожалуйста, попробуйте позже.');
@@ -200,121 +174,106 @@ const TaskList = () => {
             {description}
           </Typography>
         )}
-
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
       </Paper>
 
-      <Paper elevation={2} sx={{ p: 3 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h6">
-            Задачи
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            onClick={() => handleOpenTaskDialog()}
-          >
-            Добавить задачу
-          </Button>
-        </Box>
+      <Box display="flex" justifyContent="flex-end" mb={2}>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          onClick={() => handleOpenTaskDialog()}
+        >
+          Добавить задачу
+        </Button>
+      </Box>
 
-        <List>
-          {tasks.length === 0 ? (
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+
+      <List>
+        {tasks.map((task, index) => (
+          <React.Fragment key={task.id}>
             <ListItem>
-              <ListItemText primary="Нет задач" />
+              <Checkbox
+                checked={task.completed}
+                onChange={() => handleTaskCompletion(task.id)}
+              />
+              <ListItemText
+                primary={task.title}
+                secondary={
+                  <>
+                    {task.description && (
+                      <Typography variant="body2" color="text.secondary">
+                        {task.description}
+                      </Typography>
+                    )}
+                    <Typography variant="caption" color="text.secondary">
+                      Приоритет: {task.priority}
+                      {task.dueDate && ` • Срок: ${new Date(task.dueDate).toLocaleDateString()}`}
+                    </Typography>
+                  </>
+                }
+              />
+              <ListItemSecondaryAction>
+                <IconButton edge="end" onClick={() => handleOpenTaskDialog(task)}>
+                  <EditIcon />
+                </IconButton>
+                <IconButton edge="end" onClick={() => handleDeleteTask(task.id)}>
+                  <DeleteIcon />
+                </IconButton>
+              </ListItemSecondaryAction>
             </ListItem>
-          ) : (
-            tasks.map((task, index) => (
-              <React.Fragment key={task.id}>
-                <ListItem>
-                  <Checkbox
-                    edge="start"
-                    checked={task.completed}
-                    onChange={(e) => handleTaskCompletion(task.id, e.target.checked)}
-                  />
-                  <ListItemText
-                    primary={task.title}
-                    secondary={
-                      <>
-                        {task.description && <Typography variant="body2">{task.description}</Typography>}
-                        <Typography variant="caption" color="text.secondary">
-                          Приоритет: {task.priority}
-                          {task.dueDate && ` • Срок: ${new Date(task.dueDate).toLocaleDateString()}`}
-                        </Typography>
-                      </>
-                    }
-                    sx={{
-                      textDecoration: task.completed ? 'line-through' : 'none',
-                      color: task.completed ? 'text.secondary' : 'text.primary'
-                    }}
-                  />
-                  <ListItemSecondaryAction>
-                    <IconButton edge="end" onClick={() => handleOpenTaskDialog(task)}>
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton edge="end" onClick={() => handleDeleteTask(task.id)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-                {index < tasks.length - 1 && <Divider />}
-              </React.Fragment>
-            ))
-          )}
-        </List>
-      </Paper>
+            {index < tasks.length - 1 && <Divider />}
+          </React.Fragment>
+        ))}
+      </List>
 
-      {/* Диалог создания/редактирования задачи */}
       <Dialog open={openTaskDialog} onClose={handleCloseTaskDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
-          {editingTask ? 'Редактирование задачи' : 'Создание задачи'}
+          {editingTask ? 'Редактировать задачу' : 'Создать задачу'}
         </DialogTitle>
         <DialogContent>
-          <TextField
-            fullWidth
-            label="Название"
-            value={taskForm.title}
-            onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
-            required
-            margin="normal"
-          />
-
-          <TextField
-            fullWidth
-            label="Описание"
-            value={taskForm.description}
-            onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
-            multiline
-            rows={4}
-            margin="normal"
-          />
-
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Приоритет</InputLabel>
-            <Select
-              value={taskForm.priority}
-              onChange={(e) => setTaskForm({ ...taskForm, priority: e.target.value })}
-              label="Приоритет"
-            >
-              <MenuItem value="low">Низкий</MenuItem>
-              <MenuItem value="medium">Средний</MenuItem>
-              <MenuItem value="high">Высокий</MenuItem>
-            </Select>
-          </FormControl>
-
-          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
-            <DatePicker
-              label="Срок выполнения"
-              value={taskForm.dueDate}
-              onChange={(newValue) => setTaskForm({ ...taskForm, dueDate: newValue })}
-              renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+          <Box sx={{ pt: 2 }}>
+            <TextField
+              fullWidth
+              label="Название"
+              value={taskForm.title}
+              onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
+              margin="normal"
             />
-          </LocalizationProvider>
+            <TextField
+              fullWidth
+              label="Описание"
+              value={taskForm.description}
+              onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
+              margin="normal"
+              multiline
+              rows={3}
+            />
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Приоритет</InputLabel>
+              <Select
+                value={taskForm.priority}
+                onChange={(e) => setTaskForm({ ...taskForm, priority: e.target.value })}
+                label="Приоритет"
+              >
+                <MenuItem value="low">Низкий</MenuItem>
+                <MenuItem value="medium">Средний</MenuItem>
+                <MenuItem value="high">Высокий</MenuItem>
+              </Select>
+            </FormControl>
+            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
+              <DatePicker
+                label="Срок выполнения"
+                value={taskForm.dueDate}
+                onChange={(newValue) => setTaskForm({ ...taskForm, dueDate: newValue })}
+                renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+              />
+            </LocalizationProvider>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseTaskDialog}>Отмена</Button>

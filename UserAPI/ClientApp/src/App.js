@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
@@ -13,6 +13,9 @@ import EditTaskList from './components/EditTaskList';
 import EditTask from './components/EditTask';
 import TaskLists from './components/TaskLists';
 import ProtectedRoute from './components/ProtectedRoute';
+import Register from './components/Register';
+import PrivateRoute from './components/PrivateRoute';
+import authService from './services/authService';
 import './App.css';
 
 const theme = createTheme({
@@ -29,9 +32,43 @@ const theme = createTheme({
   },
 });
 
-function App() {
-  const userId = localStorage.getItem('userId');
+const Navigation = () => {
+  const navigate = useNavigate();
+  const isAuthenticated = authService.isAuthenticated();
+  const user = authService.getCurrentUser();
 
+  const handleLogout = () => {
+    authService.logout();
+    navigate('/login');
+  };
+
+  return (
+    <nav className="navbar">
+      <div className="nav-brand">
+        <Link to="/">TaskTracker</Link>
+      </div>
+      <div className="nav-links">
+        {isAuthenticated ? (
+          <>
+            <span className="user-info">
+              {user.firstName ? `${user.firstName} ${user.lastName}` : user.email}
+            </span>
+            <button onClick={handleLogout} className="logout-button">
+              Выйти
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to="/login">Войти</Link>
+            <Link to="/register">Регистрация</Link>
+          </>
+        )}
+      </div>
+    </nav>
+  );
+};
+
+function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -41,41 +78,28 @@ function App() {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Система управления задачами
             </Typography>
-            {userId ? (
-              <Box>
-                <Button color="inherit" component={Link} to="/">
-                  Списки задач
-                </Button>
-                <Button color="inherit" component={Link} to="/create-task-list">
-                  Создать список
-                </Button>
-                <Button 
-                  color="inherit" 
-                  onClick={() => {
-                    localStorage.removeItem('userId');
-                    window.location.href = '/login';
-                  }}
-                >
-                  Выйти
-                </Button>
-              </Box>
-            ) : (
-              <Button color="inherit" component={Link} to="/login">
-                Войти
+            <Box>
+              <Button color="inherit" component={Link} to="/">
+                Списки задач
               </Button>
-            )}
+              <Button color="inherit" component={Link} to="/create-task-list">
+                Создать список
+              </Button>
+            </Box>
           </Toolbar>
         </AppBar>
 
         <div className="App">
+          <Navigation />
           <Header />
           <div className="container">
             <Routes>
               <Route path="/" element={<TaskLists />} />
               <Route path="/create-task-list" element={<CreateTaskList />} />
-              <Route path="/task/:id" element={<TaskList />} />
+              <Route path="/task-list/:id" element={<TaskList />} />
               <Route path="/edit-task-list/:id" element={<EditTaskList />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
               <Route path="/edit-task/:id" element={
                 <ProtectedRoute>
                   <EditTask />
@@ -86,7 +110,14 @@ function App() {
                   <CreateTask />
                 </ProtectedRoute>
               } />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route
+                path="/"
+                element={
+                  <PrivateRoute>
+                    <div>Главная страница (здесь будет список задач)</div>
+                  </PrivateRoute>
+                }
+              />
             </Routes>
           </div>
         </div>

@@ -9,7 +9,7 @@ import {
   CircularProgress,
   Alert
 } from '@mui/material';
-import axios from 'axios';
+import taskService from '../services/taskService';
 
 const EditTaskList = () => {
   const { id } = useParams();
@@ -22,16 +22,9 @@ const EditTaskList = () => {
   useEffect(() => {
     const fetchTaskList = async () => {
       try {
-        const userDayNumber = localStorage.getItem('userId');
-        if (!userDayNumber) {
-          setError('Пользователь не авторизован');
-          setLoading(false);
-          return;
-        }
-
-        const response = await axios.get(`/pyd-user-api-handler/view-pyd/${id}?userDayNumber=${parseInt(userDayNumber, 10)}`);
-        setTitle(response.data.title);
-        setDescription(response.data.description || '');
+        const response = await taskService.getTaskList(id);
+        setTitle(response.title);
+        setDescription(response.description || '');
         setLoading(false);
       } catch (err) {
         console.error('Ошибка при загрузке списка задач:', err);
@@ -49,19 +42,8 @@ const EditTaskList = () => {
     setError(null);
 
     try {
-      const userDayNumber = localStorage.getItem('userId');
-      if (!userDayNumber) {
-        setError('Пользователь не авторизован');
-        setLoading(false);
-        return;
-      }
-
-      await axios.put(`/pyd-user-api-handler/update-pyd-template/${id}`, {
-        title: title,
-        description: description
-      });
-
-      navigate(`/task/${id}`);
+      await taskService.updateTaskList(id, title, description);
+      navigate(`/task-list/${id}`);
     } catch (err) {
       console.error('Ошибка при обновлении списка задач:', err);
       setError('Не удалось обновить список задач. Пожалуйста, попробуйте позже.');
@@ -99,31 +81,29 @@ const EditTaskList = () => {
             required
             margin="normal"
           />
-
           <TextField
             fullWidth
             label="Описание"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            margin="normal"
             multiline
             rows={4}
-            margin="normal"
           />
-
           <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
             <Button
+              variant="outlined"
+              onClick={() => navigate(`/task-list/${id}`)}
+            >
+              Отмена
+            </Button>
+            <Button
+              type="submit"
               variant="contained"
               color="primary"
-              type="submit"
               disabled={loading}
             >
               {loading ? <CircularProgress size={24} /> : 'Сохранить'}
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={() => navigate(`/task/${id}`)}
-            >
-              Отмена
             </Button>
           </Box>
         </form>

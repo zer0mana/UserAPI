@@ -11,7 +11,7 @@ import {
   Alert
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import axios from 'axios';
+import taskService from '../services/taskService';
 
 const TaskLists = () => {
   const [taskLists, setTaskLists] = useState([]);
@@ -21,15 +21,8 @@ const TaskLists = () => {
   useEffect(() => {
     const fetchTaskLists = async () => {
       try {
-        const userId = localStorage.getItem('userId');
-        if (!userId) {
-          setError('Пользователь не авторизован');
-          setLoading(false);
-          return;
-        }
-
-        const response = await axios.get(`/pyd-user-api-handler/view-pyd-list?userId=${parseInt(userId, 10)}`);
-        setTaskLists(response.data);
+        const response = await taskService.getTaskLists();
+        setTaskLists(response);
         setLoading(false);
       } catch (err) {
         console.error('Ошибка при загрузке списков задач:', err);
@@ -90,7 +83,7 @@ const TaskLists = () => {
                     {list.description || 'Без описания'}
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                    Задач: {list.tasks?.length || 0}
+                    Задач: {list.taskCount || 0}
                   </Typography>
                 </CardContent>
                 <CardActions>
@@ -98,7 +91,7 @@ const TaskLists = () => {
                     size="small" 
                     color="primary" 
                     component={RouterLink} 
-                    to={`/task/${list.id}`}
+                    to={`/task-list/${list.id}`}
                   >
                     Открыть
                   </Button>

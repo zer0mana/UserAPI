@@ -1,4 +1,7 @@
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using UserAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,13 +17,30 @@ builder.Services.AddFluentValidation(conf =>
     conf.AutomaticValidationEnabled = true;
 });
 
+// Добавляем аутентификацию JWT
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
+
 builder.Services.AddSingleton<IToDoTaskService, ToDoTaskService>();
+builder.Services.AddSingleton<IAuthService, AuthService>();
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
         builder => builder
-            .WithOrigins("http://localhost:3000", "http://localhost:3001", "http://localhost:3007")
+            .WithOrigins("http://localhost:3000", "http://localhost:3001", "http://localhost:3007", "http://localhost:3009", "http://localhost:3004")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
@@ -39,6 +59,7 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowReactApp");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

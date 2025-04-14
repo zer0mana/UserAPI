@@ -1,44 +1,25 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import taskService from '../services/taskService';
 
 const CreateTaskList = () => {
+  const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    console.log('Начало создания списка задач');
+    setError(null);
 
     try {
-      const userId = localStorage.getItem('userId');
-      console.log('Получен userId из localStorage:', userId);
-      
-      if (!userId) {
-        console.error('userId не найден в localStorage');
-        setError('Пользователь не авторизован');
-        return;
-      }
-
-      const response = await axios.post(`/pyd-user-api-handler/create-pyd?userId=${parseInt(userId, 10)}`, {
-        title: title,
-        description: description
-      });
-      console.log('Ответ сервера:', response.data);
+      console.log('Creating task list with:', { title, description });
+      const taskList = await taskService.createTaskList(title, description);
+      console.log('Task list created:', taskList);
       navigate('/');
     } catch (err) {
-      console.error('Ошибка при создании списка задач:', err);
-      if (err.response) {
-        console.error('Детали ошибки:', {
-          status: err.response.status,
-          data: err.response.data,
-          headers: err.response.headers
-        });
-      }
-      setError(err.response?.data?.message || 'Не удалось создать список задач. Пожалуйста, попробуйте позже.');
+      console.error('Error creating task list:', err);
+      setError('Не удалось создать список задач. Пожалуйста, попробуйте позже.');
     }
   };
 
