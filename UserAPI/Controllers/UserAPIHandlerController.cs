@@ -84,6 +84,42 @@ public class UserAPIHandlerController : ControllerBase
         var task = await _taskService.CreateTaskAsync(pydId, request.Title, request.Description, request.Priority, request.DueDate);
         return CreatedAtAction(nameof(ViewPYD), new { pydId, userDayNumber = 1 }, task);
     }
+
+    // Удаление списка задач
+    [HttpDelete("delete-pyd")]
+    public async Task<IActionResult> DeletePYD([FromQuery] long pydId, [FromQuery] long userDayNumber)
+    {
+        var result = await _taskService.DeleteTaskListAsync(pydId);
+        if (!result)
+        {
+            return NotFound($"TaskList with ID {pydId} not found");
+        }
+        return Ok();
+    }
+
+    // Удаление задачи
+    [HttpDelete("delete-task")]
+    public async Task<IActionResult> DeleteTask([FromQuery] long pydId, [FromQuery] long taskId)
+    {
+        var result = await _taskService.DeleteTaskAsync(pydId, taskId);
+        if (!result)
+        {
+            return NotFound($"Task with ID {taskId} in TaskList {pydId} not found");
+        }
+        return Ok();
+    }
+
+    // Редактирование задачи
+    [HttpPut("update-task")]
+    public async Task<IActionResult> UpdateTask([FromQuery] long pydId, [FromQuery] long taskId, [FromBody] UpdateTaskRequest request)
+    {
+        var task = await _taskService.UpdateTaskAsync(pydId, taskId, request.Title, request.Description, request.Priority, request.DueDate);
+        if (task == null)
+        {
+            return NotFound($"Task with ID {taskId} in TaskList {pydId} not found");
+        }
+        return Ok(task);
+    }
 }
 
 public class CreateTaskListRequest
@@ -99,6 +135,14 @@ public class UpdateTaskListRequest
 }
 
 public class CreateTaskRequest
+{
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public string Priority { get; set; } = "medium";
+    public DateTime? DueDate { get; set; }
+}
+
+public class UpdateTaskRequest
 {
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }

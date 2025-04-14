@@ -27,15 +27,37 @@ const TaskDetail = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    console.log('Получен id из URL:', id);
     const fetchTaskList = async () => {
       try {
-        // Здесь будет реальный userDayNumber, в данном примере используем 1
-        const userDayNumber = 1;
-        const response = await axios.get(`/pyd-user-api-handler/view-pyd/${id}?userDayNumber=${userDayNumber}`);
+        if (!id) {
+          setError('ID списка задач не указан');
+          setLoading(false);
+          return;
+        }
+
+        const userDayNumber = localStorage.getItem('userId');
+        if (!userDayNumber) {
+          setError('Пользователь не авторизован');
+          setLoading(false);
+          return;
+        }
+
+        console.log('Загрузка списка задач с ID:', id);
+        const response = await axios.get(`/pyd-user-api-handler/view-pyd/${id}?userDayNumber=${parseInt(userDayNumber, 10)}`);
+        console.log('Ответ от сервера:', response.data);
         setTaskList(response.data);
         setLoading(false);
       } catch (err) {
         console.error('Ошибка при загрузке списка задач:', err);
+        if (err.response) {
+          console.error('Детали ошибки:', {
+            status: err.response.status,
+            data: err.response.data,
+            headers: err.response.headers,
+            url: err.config?.url
+          });
+        }
         setError('Не удалось загрузить список задач. Пожалуйста, попробуйте позже.');
         setLoading(false);
       }
@@ -46,17 +68,21 @@ const TaskDetail = () => {
 
   const handleTaskCompletion = async (taskId) => {
     try {
-      await axios.post(`/pyd-user-api-handler/mark-pyd-task-completed?pydId=${id}&taskId=${taskId}`);
+      const userDayNumber = localStorage.getItem('userId');
+      if (!userDayNumber) {
+        console.error('Пользователь не авторизован');
+        return;
+      }
+      await axios.post(`/pyd-user-api-handler/mark-pyd-task-completed?pydId=${id}&taskId=${taskId}&userDayNumber=${parseInt(userDayNumber, 10)}`);
       // Обновляем состояние после успешного выполнения
       setTaskList(prevList => ({
         ...prevList,
-        tasks: prevList.tasks.map(task => 
+        toDoTasks: prevList.toDoTasks.map(task => 
           task.id === taskId ? { ...task, completed: !task.completed } : task
         )
       }));
     } catch (err) {
       console.error('Ошибка при обновлении статуса задачи:', err);
-      // Здесь можно добавить уведомление пользователя об ошибке
     }
   };
 
@@ -104,7 +130,7 @@ const TaskDetail = () => {
           variant="contained" 
           color="primary" 
           startIcon={<AddIcon />}
-          onClick={() => navigate(`/create-task?listId=${id}`)}
+          onClick={() => navigate(`/create-task?listId=${taskList.id}`)}
         >
           Добавить задачу
         </Button>
@@ -123,9 +149,9 @@ const TaskDetail = () => {
         Задачи
       </Typography>
 
-      {taskList.tasks && taskList.tasks.length > 0 ? (
+      {taskList.toDoTasks && taskList.toDoTasks.length > 0 ? (
         <List>
-          {taskList.tasks.map((task, index) => (
+          {taskList.toDoTasks.map((task, index) => (
             <React.Fragment key={task.id}>
               <ListItem>
                 <Checkbox
@@ -160,7 +186,7 @@ const TaskDetail = () => {
                   </IconButton>
                 </ListItemSecondaryAction>
               </ListItem>
-              {index < taskList.tasks.length - 1 && <Divider />}
+              {index < taskList.toDoTasks.length - 1 && <Divider />}
             </React.Fragment>
           ))}
         </List>

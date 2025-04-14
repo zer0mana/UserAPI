@@ -20,13 +20,38 @@ const TaskList = () => {
   useEffect(() => {
     const fetchTaskLists = async () => {
       try {
-        // Здесь будет реальный userId, в данном примере используем 1
-        const userId = 1;
-        const response = await axios.get(`/pyd-user-api-handler/view-pyd-list?userId=${userId}`);
+        const userId = localStorage.getItem('userId');
+        console.log('Получен userId из localStorage:', userId);
+        
+        if (!userId) {
+          setError('Пользователь не авторизован');
+          setLoading(false);
+          return;
+        }
+
+        const parsedUserId = parseInt(userId, 10);
+        if (isNaN(parsedUserId)) {
+          console.error('userId не является числом:', userId);
+          setError('Некорректный ID пользователя');
+          setLoading(false);
+          return;
+        }
+
+        console.log('Отправка запроса с userId:', parsedUserId);
+        const response = await axios.get(`/pyd-user-api-handler/view-pyd-list?userId=${parsedUserId}`);
+        console.log('Ответ от сервера:', response.data);
+        console.log('Первый элемент списка:', response.data[0]);
         setTaskLists(response.data);
         setLoading(false);
       } catch (err) {
         console.error('Ошибка при загрузке списков задач:', err);
+        if (err.response) {
+          console.error('Детали ошибки:', {
+            status: err.response.status,
+            data: err.response.data,
+            headers: err.response.headers
+          });
+        }
         setError('Не удалось загрузить списки задач. Пожалуйста, попробуйте позже.');
         setLoading(false);
       }
@@ -84,7 +109,7 @@ const TaskList = () => {
                     {list.description || 'Без описания'}
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                    Задач: {list.taskCount || 0}
+                    Задач: {list.toDoTasks?.length || 0}
                   </Typography>
                 </CardContent>
                 <CardActions className="task-card-actions">
@@ -93,6 +118,10 @@ const TaskList = () => {
                     color="primary" 
                     component={RouterLink} 
                     to={`/task/${list.id}`}
+                    onClick={() => {
+                      console.log('Переход к списку задач с ID:', list.id);
+                      console.log('Полный объект списка:', JSON.stringify(list, null, 2));
+                    }}
                   >
                     Открыть
                   </Button>

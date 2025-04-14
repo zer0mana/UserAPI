@@ -10,18 +10,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="50da57f9-91b9-4780-8580-152e42271850" name="Changes" comment="Фронтенд">
-      <change afterPath="$PROJECT_DIR$/UserAPI/Models/ToDoList.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/UserAPI/Services/ToDoTaskService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.UserAPI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.UserAPI/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/CreateTask.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/CreateTask.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/CreateTaskList.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/CreateTaskList.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/Header.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/Header.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/Login.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/Login.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskDetail.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskDetail.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskList.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskList.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserAPI/Controllers/UserAPIHandlerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/Controllers/UserAPIHandlerController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/UserAPI.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/UserAPI.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/Services/ToDoTaskService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/Services/ToDoTaskService.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,6 +58,7 @@
     ".NET Launch Settings Profile.UserAPI: IIS Express.executor": "Run",
     ".NET Launch Settings Profile.UserAPI: http.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "master",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -129,6 +125,7 @@
       <updated>1744551241334</updated>
       <workItem from="1744551242231" duration="2456000" />
       <workItem from="1744580080792" duration="4187000" />
+      <workItem from="1744587980780" duration="4033000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -146,7 +143,23 @@
       <option name="project" value="LOCAL" />
       <updated>1744552387035</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Фронтенд">
+      <option name="closed" value="true" />
+      <created>1744588063887</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1744588063887</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Фронтенд">
+      <option name="closed" value="true" />
+      <created>1744588250919</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1744588250919</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

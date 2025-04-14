@@ -9,8 +9,11 @@ public interface IToDoTaskService
     Task<List<ToDoList>> GetRecommendedTaskListsAsync(long userId);
     Task<ToDoList> CreateTaskListAsync(long userId, string title, string? description);
     Task<ToDoList> UpdateTaskListAsync(long taskListId, string title, string? description);
+    Task<bool> DeleteTaskListAsync(long taskListId);
     Task<bool> MarkTaskCompletedAsync(long taskListId, long taskId);
     Task<ToDoTask> CreateTaskAsync(long taskListId, string title, string? description, string priority, DateTime? dueDate);
+    Task<bool> DeleteTaskAsync(long taskListId, long taskId);
+    Task<ToDoTask?> UpdateTaskAsync(long taskListId, long taskId, string title, string? description, string priority, DateTime? dueDate);
 }
 
 public class ToDoTaskService : IToDoTaskService
@@ -24,6 +27,11 @@ public class ToDoTaskService : IToDoTaskService
     public Task<List<ToDoList>> GetTaskListsAsync(long userId)
     {
         var userTaskLists = _taskLists.Where(tl => tl.UserId == userId).ToList();
+        foreach (var taskList in userTaskLists)
+        {
+            taskList.ToDoTasks = _tasks.Where(t => t.ToDoTaskListId == taskList.Id).ToList();
+        }
+        Console.WriteLine("get task lists");
         return Task.FromResult(userTaskLists);
     }
 
@@ -34,6 +42,7 @@ public class ToDoTaskService : IToDoTaskService
         {
             taskList.ToDoTasks = _tasks.Where(t => t.ToDoTaskListId == taskListId).ToList();
         }
+        Console.WriteLine("get task list");
         return Task.FromResult(taskList);
     }
 
@@ -58,6 +67,7 @@ public class ToDoTaskService : IToDoTaskService
             UserId = userId
         };
         _taskLists.Add(taskList);
+        Console.WriteLine("create task list");
         return Task.FromResult(taskList);
     }
 
@@ -73,6 +83,19 @@ public class ToDoTaskService : IToDoTaskService
         taskList.Description = description;
         return Task.FromResult(taskList);
     }
+    
+    public Task<bool> DeleteTaskListAsync(long taskListId)
+    {
+        var taskList = _taskLists.FirstOrDefault(tl => tl.Id == taskListId);
+        if (taskList == null)
+        {
+            return Task.FromResult(false);
+        }
+
+        _taskLists.Remove(taskList);
+        _tasks.RemoveAll(t => t.ToDoTaskListId == taskListId);
+        return Task.FromResult(true);
+    }
 
     public Task<bool> MarkTaskCompletedAsync(long taskListId, long taskId)
     {
@@ -83,6 +106,7 @@ public class ToDoTaskService : IToDoTaskService
         }
 
         task.Completed = !task.Completed;
+        Console.WriteLine($"task completed {task.Completed}");
         return Task.FromResult(true);
     }
 
@@ -98,6 +122,35 @@ public class ToDoTaskService : IToDoTaskService
             ToDoTaskListId = taskListId
         };
         _tasks.Add(task);
+        Console.WriteLine("create task");
         return Task.FromResult(task);
+    }
+    
+    public Task<bool> DeleteTaskAsync(long taskListId, long taskId)
+    {
+        var task = _tasks.FirstOrDefault(t => t.ToDoTaskListId == taskListId && t.Id == taskId);
+        if (task == null)
+        {
+            return Task.FromResult(false);
+        }
+
+        _tasks.Remove(task);
+        return Task.FromResult(true);
+    }
+
+    public Task<ToDoTask?> UpdateTaskAsync(long taskListId, long taskId, string title, string? description, string priority, DateTime? dueDate)
+    {
+        var task = _tasks.FirstOrDefault(t => t.ToDoTaskListId == taskListId && t.Id == taskId);
+        if (task == null)
+        {
+            return Task.FromResult<ToDoTask?>(null);
+        }
+
+        task.Title = title;
+        task.Description = description;
+        task.Priority = priority;
+        task.DueDate = dueDate;
+
+        return Task.FromResult<ToDoTask?>(task);
     }
 } 

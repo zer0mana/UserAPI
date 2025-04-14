@@ -16,7 +16,8 @@ const Login = () => {
       // В реальном приложении здесь будет запрос к API для авторизации
       // Сейчас для демонстрации просто сохраняем userId
       const userId = 1; // В реальном приложении это будет приходить с сервера
-      localStorage.setItem('userId', userId);
+      localStorage.setItem('userId', userId.toString());
+      console.log('Сохранен userId в localStorage:', userId);
       navigate('/');
     } catch (err) {
       console.error('Ошибка при авторизации:', err);

@@ -23,37 +23,21 @@ const CreateTaskList = () => {
         return;
       }
 
-      const requestData = {
+      const response = await axios.post(`/pyd-user-api-handler/create-pyd?userId=${parseInt(userId, 10)}`, {
         title: title,
         description: description
-      };
-
-      console.log('Подготовленные данные для отправки:', requestData);
-      console.log('URL запроса:', `/pyd-user-api-handler/create-pyd?userId=${userId}`);
-
-      const response = await axios.post(`/pyd-user-api-handler/create-pyd?userId=${userId}`, requestData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
       });
-
-      console.log('Ответ от сервера:', response.data);
-
-      if (response.data) {
-        console.log('Список задач успешно создан, перенаправление на /');
-        navigate('/');
-      }
+      console.log('Ответ сервера:', response.data);
+      navigate('/');
     } catch (err) {
       console.error('Ошибка при создании списка задач:', err);
-      console.error('Детали ошибки:', {
-        message: err.message,
-        response: err.response?.data,
-        status: err.response?.status,
-        statusText: err.response?.statusText,
-        headers: err.response?.headers,
-        config: err.config
-      });
+      if (err.response) {
+        console.error('Детали ошибки:', {
+          status: err.response.status,
+          data: err.response.data,
+          headers: err.response.headers
+        });
+      }
       setError(err.response?.data?.message || 'Не удалось создать список задач. Пожалуйста, попробуйте позже.');
     }
   };
