@@ -86,14 +86,43 @@ const TaskDetail = () => {
     }
   };
 
-  const handleDeleteTask = (taskId) => {
-    // Здесь будет логика удаления задачи
-    console.log('Удалить задачу', taskId);
+  const handleDeleteTask = async (taskId) => {
+    try {
+      const userDayNumber = localStorage.getItem('userId');
+      if (!userDayNumber) {
+        console.error('Пользователь не авторизован');
+        return;
+      }
+      await axios.delete(`/pyd-user-api-handler/delete-task?pydId=${id}&taskId=${taskId}&userDayNumber=${parseInt(userDayNumber, 10)}`);
+      // Обновляем состояние после успешного удаления
+      setTaskList(prevList => ({
+        ...prevList,
+        toDoTasks: prevList.toDoTasks.filter(task => task.id !== taskId)
+      }));
+    } catch (err) {
+      console.error('Ошибка при удалении задачи:', err);
+    }
   };
 
   const handleEditTask = (taskId) => {
     // Здесь будет логика редактирования задачи
     console.log('Редактировать задачу', taskId);
+  };
+
+  const handleDeleteTaskList = async () => {
+    try {
+      const userDayNumber = localStorage.getItem('userId');
+      if (!userDayNumber) {
+        console.error('Пользователь не авторизован');
+        return;
+      }
+      await axios.delete(`/pyd-user-api-handler/delete-pyd?pydId=${id}&userDayNumber=${parseInt(userDayNumber, 10)}`);
+      // Обновляем состояние после успешного удаления списка
+      setTaskList(null);
+      navigate('/');
+    } catch (err) {
+      console.error('Ошибка при удалении списка задач:', err);
+    }
   };
 
   if (loading) {
@@ -122,19 +151,30 @@ const TaskDetail = () => {
 
   return (
     <div className="task-detail">
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1">
-          {taskList.title}
-        </Typography>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          startIcon={<AddIcon />}
-          onClick={() => navigate(`/create-task?listId=${taskList.id}`)}
-        >
-          Добавить задачу
-        </Button>
-      </Box>
+      <Paper elevation={2} sx={{ p: 3 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+          <Typography variant="h5" component="h1">
+            {taskList.title}
+          </Typography>
+          <Box>
+            <Button 
+              variant="outlined" 
+              color="primary" 
+              onClick={() => navigate(`/edit-task-list/${id}`)}
+              sx={{ mr: 1 }}
+            >
+              Редактировать список
+            </Button>
+            <Button 
+              variant="outlined" 
+              color="error" 
+              onClick={handleDeleteTaskList}
+            >
+              Удалить список
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
 
       <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
         <Typography variant="body1" paragraph>

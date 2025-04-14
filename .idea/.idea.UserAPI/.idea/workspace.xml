@@ -9,14 +9,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="50da57f9-91b9-4780-8580-152e42271850" name="Changes" comment="Фронтенд">
+    <list default="true" id="50da57f9-91b9-4780-8580-152e42271850" name="Changes" comment="Фронтенд - Создавать списки дел/задачи">
+      <change afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/EditTaskList.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.UserAPI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.UserAPI/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/CreateTaskList.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/CreateTaskList.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/Login.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/Login.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskDetail.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskDetail.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskList.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskList.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/Controllers/UserAPIHandlerController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/Controllers/UserAPIHandlerController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/Services/ToDoTaskService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/Services/ToDoTaskService.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -125,7 +125,7 @@
       <updated>1744551241334</updated>
       <workItem from="1744551242231" duration="2456000" />
       <workItem from="1744580080792" duration="4187000" />
-      <workItem from="1744587980780" duration="4033000" />
+      <workItem from="1744587980780" duration="6122000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -159,7 +159,23 @@
       <option name="project" value="LOCAL" />
       <updated>1744588250919</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Фронтенд">
+      <option name="closed" value="true" />
+      <created>1744629544569</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1744629544569</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Фронтенд - Создавать списки дел/задачи">
+      <option name="closed" value="true" />
+      <created>1744630324527</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1744630324527</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -171,6 +187,7 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="Initial commit" />
     <MESSAGE value="Фронтенд" />
-    <option name="LAST_COMMIT_MESSAGE" value="Фронтенд" />
+    <MESSAGE value="Фронтенд - Создавать списки дел/задачи" />
+    <option name="LAST_COMMIT_MESSAGE" value="Фронтенд - Создавать списки дел/задачи" />
   </component>
 </project>

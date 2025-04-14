@@ -1,64 +1,176 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  Card, 
-  CardContent, 
-  CardActions, 
   Typography, 
+  Box, 
   Button, 
-  Grid, 
-  Box,
-  CircularProgress
+  Paper,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+  IconButton,
+  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Alert,
+  Checkbox
 } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { ru } from 'date-fns/locale';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
 import axios from 'axios';
 
 const TaskList = () => {
-  const [taskLists, setTaskLists] = useState([]);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [tasks, setTasks] = useState([]);
+  
+  // Состояние для диалога создания/редактирования задачи
+  const [openTaskDialog, setOpenTaskDialog] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
+  const [taskForm, setTaskForm] = useState({
+    title: '',
+    description: '',
+    priority: 'medium',
+    dueDate: null
+  });
 
   useEffect(() => {
-    const fetchTaskLists = async () => {
+    const fetchTaskList = async () => {
       try {
-        const userId = localStorage.getItem('userId');
-        console.log('Получен userId из localStorage:', userId);
-        
-        if (!userId) {
+        const userDayNumber = localStorage.getItem('userId');
+        if (!userDayNumber) {
           setError('Пользователь не авторизован');
           setLoading(false);
           return;
         }
 
-        const parsedUserId = parseInt(userId, 10);
-        if (isNaN(parsedUserId)) {
-          console.error('userId не является числом:', userId);
-          setError('Некорректный ID пользователя');
-          setLoading(false);
-          return;
-        }
-
-        console.log('Отправка запроса с userId:', parsedUserId);
-        const response = await axios.get(`/pyd-user-api-handler/view-pyd-list?userId=${parsedUserId}`);
-        console.log('Ответ от сервера:', response.data);
-        console.log('Первый элемент списка:', response.data[0]);
-        setTaskLists(response.data);
+        const response = await axios.get(`/pyd-user-api-handler/view-pyd/${id}?userDayNumber=${parseInt(userDayNumber, 10)}`);
+        console.log('Ответ от сервера при загрузке списка задач:', response.data);
+        setTitle(response.data.title);
+        setDescription(response.data.description || '');
+        setTasks(response.data.toDoTasks || []);
         setLoading(false);
       } catch (err) {
-        console.error('Ошибка при загрузке списков задач:', err);
-        if (err.response) {
-          console.error('Детали ошибки:', {
-            status: err.response.status,
-            data: err.response.data,
-            headers: err.response.headers
-          });
-        }
-        setError('Не удалось загрузить списки задач. Пожалуйста, попробуйте позже.');
+        console.error('Ошибка при загрузке списка задач:', err);
+        setError('Не удалось загрузить список задач. Пожалуйста, попробуйте позже.');
         setLoading(false);
       }
     };
 
-    fetchTaskLists();
-  }, []);
+    fetchTaskList();
+  }, [id]);
+
+  const handleOpenTaskDialog = (task = null) => {
+    if (task) {
+      setEditingTask(task);
+      setTaskForm({
+        title: task.title,
+        description: task.description || '',
+        priority: task.priority,
+        dueDate: task.dueDate ? new Date(task.dueDate) : null
+      });
+    } else {
+      setEditingTask(null);
+      setTaskForm({
+        title: '',
+        description: '',
+        priority: 'medium',
+        dueDate: null
+      });
+    }
+    setOpenTaskDialog(true);
+  };
+
+  const handleCloseTaskDialog = () => {
+    setOpenTaskDialog(false);
+    setEditingTask(null);
+  };
+
+  const handleTaskSubmit = async () => {
+    try {
+      const userDayNumber = localStorage.getItem('userId');
+      if (!userDayNumber) {
+        setError('Пользователь не авторизован');
+        return;
+      }
+
+      console.log('Отправка данных задачи:', taskForm);
+
+      if (editingTask) {
+        // Обновление существующей задачи
+        await axios.put(`/pyd-user-api-handler/update-task?pydId=${id}&taskId=${editingTask.id}`, taskForm);
+      } else {
+        // Создание новой задачи
+        const createResponse = await axios.post(`/pyd-user-api-handler/create-task?pydId=${id}`, taskForm);
+        console.log('Ответ при создании задачи:', createResponse.data);
+      }
+
+      // Обновляем список задач
+      const response = await axios.get(`/pyd-user-api-handler/view-pyd/${id}?userDayNumber=${parseInt(userDayNumber, 10)}`);
+      console.log('Ответ при обновлении списка задач:', response.data);
+      setTasks(response.data.toDoTasks || []);
+      
+      handleCloseTaskDialog();
+    } catch (err) {
+      console.error('Ошибка при сохранении задачи:', err);
+      setError('Не удалось сохранить задачу. Пожалуйста, попробуйте позже.');
+    }
+  };
+
+  const handleDeleteTask = async (taskId) => {
+    try {
+      const userDayNumber = localStorage.getItem('userId');
+      if (!userDayNumber) {
+        setError('Пользователь не авторизован');
+        return;
+      }
+
+      await axios.delete(`/pyd-user-api-handler/delete-task?pydId=${id}&taskId=${taskId}`);
+      
+      // Обновляем список задач
+      const response = await axios.get(`/pyd-user-api-handler/view-pyd/${id}?userDayNumber=${parseInt(userDayNumber, 10)}`);
+      setTasks(response.data.toDoTasks || []);
+    } catch (err) {
+      console.error('Ошибка при удалении задачи:', err);
+      setError('Не удалось удалить задачу. Пожалуйста, попробуйте позже.');
+    }
+  };
+
+  const handleTaskCompletion = async (taskId, completed) => {
+    try {
+      const userDayNumber = localStorage.getItem('userId');
+      if (!userDayNumber) {
+        setError('Пользователь не авторизован');
+        return;
+      }
+
+      await axios.post(`/pyd-user-api-handler/mark-pyd-task-completed?pydId=${id}&taskId=${taskId}`);
+
+      // Обновляем список задач
+      const response = await axios.get(`/pyd-user-api-handler/view-pyd/${id}?userDayNumber=${parseInt(userDayNumber, 10)}`);
+      setTasks(response.data.toDoTasks || []);
+    } catch (err) {
+      console.error('Ошибка при обновлении статуса задачи:', err);
+      setError('Не удалось обновить статус задачи. Пожалуйста, попробуйте позже.');
+    }
+  };
 
   if (loading) {
     return (
@@ -68,80 +180,150 @@ const TaskList = () => {
     );
   }
 
-  if (error) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
-        <Typography color="error">{error}</Typography>
-      </Box>
-    );
-  }
-
   return (
-    <div>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1">
-          Мои списки задач
-        </Typography>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          component={RouterLink} 
-          to="/create-task-list"
-        >
-          Создать новый список
-        </Button>
-      </Box>
+    <Box sx={{ maxWidth: 800, mx: 'auto', mt: 4, p: 2 }}>
+      <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h5" component="h1">
+            {title}
+          </Typography>
+          <Button
+            variant="outlined"
+            onClick={() => navigate(`/edit-task-list/${id}`)}
+          >
+            Редактировать список
+          </Button>
+        </Box>
+        
+        {description && (
+          <Typography variant="body1" color="text.secondary" paragraph>
+            {description}
+          </Typography>
+        )}
 
-      {taskLists.length === 0 ? (
-        <Typography variant="body1" align="center">
-          У вас пока нет списков задач. Создайте новый список, чтобы начать.
-        </Typography>
-      ) : (
-        <Grid container spacing={3}>
-          {taskLists.map((list) => (
-            <Grid item xs={12} sm={6} md={4} key={list.id}>
-              <Card className="task-card">
-                <CardContent className="task-card-content">
-                  <Typography variant="h6" component="h2">
-                    {list.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {list.description || 'Без описания'}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                    Задач: {list.toDoTasks?.length || 0}
-                  </Typography>
-                </CardContent>
-                <CardActions className="task-card-actions">
-                  <Button 
-                    size="small" 
-                    color="primary" 
-                    component={RouterLink} 
-                    to={`/task/${list.id}`}
-                    onClick={() => {
-                      console.log('Переход к списку задач с ID:', list.id);
-                      console.log('Полный объект списка:', JSON.stringify(list, null, 2));
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+      </Paper>
+
+      <Paper elevation={2} sx={{ p: 3 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h6">
+            Задачи
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpenTaskDialog()}
+          >
+            Добавить задачу
+          </Button>
+        </Box>
+
+        <List>
+          {tasks.length === 0 ? (
+            <ListItem>
+              <ListItemText primary="Нет задач" />
+            </ListItem>
+          ) : (
+            tasks.map((task, index) => (
+              <React.Fragment key={task.id}>
+                <ListItem>
+                  <Checkbox
+                    edge="start"
+                    checked={task.completed}
+                    onChange={(e) => handleTaskCompletion(task.id, e.target.checked)}
+                  />
+                  <ListItemText
+                    primary={task.title}
+                    secondary={
+                      <>
+                        {task.description && <Typography variant="body2">{task.description}</Typography>}
+                        <Typography variant="caption" color="text.secondary">
+                          Приоритет: {task.priority}
+                          {task.dueDate && ` • Срок: ${new Date(task.dueDate).toLocaleDateString()}`}
+                        </Typography>
+                      </>
+                    }
+                    sx={{
+                      textDecoration: task.completed ? 'line-through' : 'none',
+                      color: task.completed ? 'text.secondary' : 'text.primary'
                     }}
-                  >
-                    Открыть
-                  </Button>
-                  <Button 
-                    size="small" 
-                    color="secondary"
-                    onClick={() => {
-                      // Здесь будет логика удаления списка
-                      console.log('Удалить список', list.id);
-                    }}
-                  >
-                    Удалить
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      )}
-    </div>
+                  />
+                  <ListItemSecondaryAction>
+                    <IconButton edge="end" onClick={() => handleOpenTaskDialog(task)}>
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton edge="end" onClick={() => handleDeleteTask(task.id)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+                {index < tasks.length - 1 && <Divider />}
+              </React.Fragment>
+            ))
+          )}
+        </List>
+      </Paper>
+
+      {/* Диалог создания/редактирования задачи */}
+      <Dialog open={openTaskDialog} onClose={handleCloseTaskDialog} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          {editingTask ? 'Редактирование задачи' : 'Создание задачи'}
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            label="Название"
+            value={taskForm.title}
+            onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
+            required
+            margin="normal"
+          />
+
+          <TextField
+            fullWidth
+            label="Описание"
+            value={taskForm.description}
+            onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
+            multiline
+            rows={4}
+            margin="normal"
+          />
+
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Приоритет</InputLabel>
+            <Select
+              value={taskForm.priority}
+              onChange={(e) => setTaskForm({ ...taskForm, priority: e.target.value })}
+              label="Приоритет"
+            >
+              <MenuItem value="low">Низкий</MenuItem>
+              <MenuItem value="medium">Средний</MenuItem>
+              <MenuItem value="high">Высокий</MenuItem>
+            </Select>
+          </FormControl>
+
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
+            <DatePicker
+              label="Срок выполнения"
+              value={taskForm.dueDate}
+              onChange={(newValue) => setTaskForm({ ...taskForm, dueDate: newValue })}
+              renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+            />
+          </LocalizationProvider>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseTaskDialog}>Отмена</Button>
+          <Button onClick={handleTaskSubmit} variant="contained" color="primary">
+            {editingTask ? 'Сохранить' : 'Создать'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 };
 
