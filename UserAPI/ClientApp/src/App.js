@@ -16,6 +16,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Register from './components/Register';
 import PrivateRoute from './components/PrivateRoute';
 import authService from './services/authService';
+import RecommendedTaskLists from './components/RecommendedTaskLists';
 import './App.css';
 
 const theme = createTheme({
@@ -50,6 +51,8 @@ const Navigation = () => {
       <div className="nav-links">
         {isAuthenticated ? (
           <>
+            <Link to="/" className="nav-link">Мои списки</Link>
+            <Link to="/recommended" className="nav-link">Рекомендации</Link>
             <span className="user-info">
               {user.firstName ? `${user.firstName} ${user.lastName}` : user.email}
             </span>
@@ -110,14 +113,8 @@ function App() {
                   <CreateTask />
                 </ProtectedRoute>
               } />
-              <Route
-                path="/"
-                element={
-                  <PrivateRoute>
-                    <div>Главная страница (здесь будет список задач)</div>
-                  </PrivateRoute>
-                }
-              />
+              <Route path="/" element={<PrivateRoute><TaskLists /></PrivateRoute>} />
+              <Route path="/recommended" element={<PrivateRoute><RecommendedTaskLists /></PrivateRoute>} />
             </Routes>
           </div>
         </div>

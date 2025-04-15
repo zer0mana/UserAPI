@@ -144,6 +144,14 @@ namespace UserAPI.Controllers
             var result = await _taskService.MarkTaskCompletedAsync(taskListId, taskId);
             return result ? NoContent() : NotFound();
         }
+        
+        [HttpPut("lists/{taskListId}/subscribe")]
+        public async Task<IActionResult> SubscribeToDoList(long taskListId)
+        {
+            var userId = long.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+            Console.WriteLine($"Пользователь {userId} подписался на список дел {taskListId}");
+            return Ok();
+        }
     }
 
     public class CreateTaskListRequest

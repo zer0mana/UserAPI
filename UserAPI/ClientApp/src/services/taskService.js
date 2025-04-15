@@ -63,6 +63,7 @@ class TaskService {
     async getRecommendedTaskLists() {
         try {
             const response = await api.get('/todotask/lists/recommended');
+            console.log('Ответ от сервера при загрузке рекомендуемых списков:', response.data);
             return response.data;
         } catch (error) {
             console.error('Error fetching recommended task lists:', error);
@@ -171,6 +172,18 @@ class TaskService {
             return response.data;
         } catch (error) {
             console.error(`Error marking task ${taskId} as completed in list ${taskListId}:`, error);
+            throw error;
+        }
+    }
+
+    async subscribeToTaskList(taskListId) {
+        try {
+            console.log('Подписка на список задач:', taskListId);
+            const response = await api.put(`/todotask/lists/${taskListId}/subscribe`);
+            console.log('Ответ от сервера при подписке:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('Error subscribing to task list:', error);
             throw error;
         }
     }
