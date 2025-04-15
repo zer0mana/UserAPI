@@ -17,80 +17,71 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { ru } from 'date-fns/locale';
 import axios from 'axios';
+import taskService from '../services/taskService';
 
 const EditTask = () => {
-  const { id } = useParams();
+  const { listId, taskId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [task, setTask] = useState({
+  const [formData, setFormData] = useState({
     title: '',
     description: '',
+    completed: false,
     priority: 'medium',
-    dueDate: null
+    dueDate: '',
+    points: 0
   });
 
   useEffect(() => {
     const fetchTask = async () => {
       try {
-        const userDayNumber = localStorage.getItem('userId');
-        if (!userDayNumber) {
-          setError('Пользователь не авторизован');
-          return;
-        }
-
-        const response = await axios.get(`/pyd-user-api-handler/view-pyd/${id}?userDayNumber=${parseInt(userDayNumber, 10)}`);
-        const taskData = response.data.tasks.find(t => t.id === parseInt(id, 10));
-        if (taskData) {
-          setTask({
-            title: taskData.title,
-            description: taskData.description || '',
-            priority: taskData.priority,
-            dueDate: taskData.dueDate ? new Date(taskData.dueDate) : null
+        const tasks = await taskService.getTasks(listId);
+        const task = tasks.find(t => t.id === parseInt(taskId));
+        if (task) {
+          setFormData({
+            title: task.title,
+            description: task.description || '',
+            completed: task.completed,
+            priority: task.priority,
+            dueDate: task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 16) : '',
+            points: task.points
           });
         }
-      } catch (err) {
-        console.error('Ошибка при загрузке задачи:', err);
+        setLoading(false);
+      } catch (error) {
+        console.error('Ошибка при загрузке задачи:', error);
         setError('Не удалось загрузить задачу');
-      } finally {
         setLoading(false);
       }
     };
 
     fetchTask();
-  }, [id]);
+  }, [listId, taskId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-
     try {
-      const userDayNumber = localStorage.getItem('userId');
-      if (!userDayNumber) {
-        setError('Пользователь не авторизован');
-        return;
-      }
-
-      await axios.put(`/pyd-user-api-handler/update-task?pydId=${id}&taskId=${parseInt(id, 10)}`, {
-        title: task.title,
-        description: task.description,
-        priority: task.priority,
-        dueDate: task.dueDate
-      });
-
-      navigate(`/task/${id}`);
-    } catch (err) {
-      console.error('Ошибка при обновлении задачи:', err);
+      await taskService.updateTask(
+        listId,
+        taskId,
+        formData.title,
+        formData.description,
+        formData.completed,
+        formData.priority,
+        formData.dueDate ? new Date(formData.dueDate).toISOString() : null,
+        formData.points
+      );
+      navigate(`/task/${listId}`);
+    } catch (error) {
+      console.error('Ошибка при обновлении задачи:', error);
       setError('Не удалось обновить задачу');
-    } finally {
-      setLoading(false);
     }
   };
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
         <CircularProgress />
       </Box>
     );
@@ -100,7 +91,7 @@ const EditTask = () => {
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, p: 2 }}>
       <Paper elevation={3} sx={{ p: 3 }}>
         <Typography variant="h5" component="h1" gutterBottom>
-          Редактирование задачи
+          Редактировать задачу
         </Typography>
 
         {error && (
@@ -113,8 +104,8 @@ const EditTask = () => {
           <TextField
             fullWidth
             label="Название"
-            value={task.title}
-            onChange={(e) => setTask({ ...task, title: e.target.value })}
+            value={formData.title}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             required
             margin="normal"
           />
@@ -122,8 +113,8 @@ const EditTask = () => {
           <TextField
             fullWidth
             label="Описание"
-            value={task.description}
-            onChange={(e) => setTask({ ...task, description: e.target.value })}
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             multiline
             rows={4}
             margin="normal"
@@ -132,8 +123,8 @@ const EditTask = () => {
           <FormControl fullWidth margin="normal">
             <InputLabel>Приоритет</InputLabel>
             <Select
-              value={task.priority}
-              onChange={(e) => setTask({ ...task, priority: e.target.value })}
+              value={formData.priority}
+              onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
               label="Приоритет"
             >
               <MenuItem value="low">Низкий</MenuItem>
@@ -145,26 +136,36 @@ const EditTask = () => {
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
             <DatePicker
               label="Срок выполнения"
-              value={task.dueDate}
-              onChange={(newValue) => setTask({ ...task, dueDate: newValue })}
+              value={formData.dueDate}
+              onChange={(newValue) => setFormData({ ...formData, dueDate: newValue })}
               renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
             />
           </LocalizationProvider>
 
-          <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              type="submit"
-              disabled={loading}
-            >
-              {loading ? <CircularProgress size={24} /> : 'Сохранить'}
-            </Button>
+          <TextField
+            label="Очки"
+            type="number"
+            value={formData.points}
+            onChange={(e) => setFormData({ ...formData, points: parseInt(e.target.value) || 0 })}
+            fullWidth
+            required
+            margin="normal"
+            inputProps={{ min: 0 }}
+          />
+
+          <Box sx={{ mt: 3, display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
             <Button
               variant="outlined"
-              onClick={() => navigate(`/task/${id}`)}
+              onClick={() => navigate(`/task/${listId}`)}
             >
               Отмена
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+            >
+              Сохранить
             </Button>
           </Box>
         </form>

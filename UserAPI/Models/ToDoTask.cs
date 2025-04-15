@@ -9,4 +9,5 @@ public class ToDoTask
     public string Priority { get; set; } = "medium";
     public DateTime? DueDate { get; set; }
     public long ToDoTaskListId { get; set; }
+    public int Points { get; set; } = 0;
 }

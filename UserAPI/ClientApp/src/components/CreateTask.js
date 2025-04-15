@@ -24,7 +24,8 @@ const CreateTask = () => {
     title: '',
     description: '',
     priority: 'medium',
-    dueDate: ''
+    dueDate: '',
+    points: 0
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -48,7 +49,8 @@ const CreateTask = () => {
         title: formData.title,
         description: formData.description,
         priority: formData.priority,
-        dueDate: formData.dueDate || null
+        dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : null,
+        points: parseInt(formData.points)
       });
 
       // Перенаправляем на страницу списка задач
@@ -120,7 +122,7 @@ const CreateTask = () => {
             <TextField
               label="Срок выполнения"
               name="dueDate"
-              type="date"
+              type="datetime-local"
               value={formData.dueDate}
               onChange={handleChange}
               fullWidth
@@ -128,6 +130,23 @@ const CreateTask = () => {
               InputLabelProps={{
                 shrink: true,
               }}
+            />
+          </Box>
+
+          <Box mb={3}>
+            <TextField
+              label="Очки"
+              name="points"
+              type="number"
+              value={formData.points}
+              onChange={handleChange}
+              fullWidth
+              variant="outlined"
+              InputLabelProps={{
+                shrink: true,
+              }}
+              min="0"
+              required
             />
           </Box>
 

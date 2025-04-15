@@ -16,6 +16,7 @@ const EditTaskList = () => {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [requiredPoints, setRequiredPoints] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -25,6 +26,7 @@ const EditTaskList = () => {
         const response = await taskService.getTaskList(id);
         setTitle(response.title);
         setDescription(response.description || '');
+        setRequiredPoints(response.requiredPoints || 0);
         setLoading(false);
       } catch (err) {
         console.error('Ошибка при загрузке списка задач:', err);
@@ -42,7 +44,7 @@ const EditTaskList = () => {
     setError(null);
 
     try {
-      await taskService.updateTaskList(id, title, description);
+      await taskService.updateTaskList(id, title, description, requiredPoints);
       navigate(`/task-list/${id}`);
     } catch (err) {
       console.error('Ошибка при обновлении списка задач:', err);
@@ -90,6 +92,37 @@ const EditTaskList = () => {
             multiline
             rows={4}
           />
+          <Box sx={{ 
+            mt: 2, 
+            p: 2, 
+            border: '1px solid #1976d2', 
+            borderRadius: 1,
+            backgroundColor: '#f5f5f5'
+          }}>
+            <Typography variant="subtitle1" color="primary" gutterBottom>
+              Требуемое количество очков
+            </Typography>
+            <TextField
+              fullWidth
+              label="Очки"
+              type="number"
+              value={requiredPoints}
+              onChange={(e) => {
+                const value = parseInt(e.target.value) || 0;
+                console.log('Изменение очков:', value);
+                setRequiredPoints(value);
+              }}
+              margin="normal"
+              inputProps={{ min: 0 }}
+              sx={{ 
+                '& .MuiInputLabel-root': { color: 'primary.main' },
+                '& .MuiOutlinedInput-root': { 
+                  '&:hover fieldset': { borderColor: 'primary.main' },
+                  '&.Mui-focused fieldset': { borderColor: 'primary.main' }
+                }
+              }}
+            />
+          </Box>
           <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
             <Button
               variant="outlined"

@@ -7,13 +7,13 @@ public interface IToDoTaskService
     Task<List<ToDoList>> GetTaskListsAsync(long userId);
     Task<ToDoList?> GetTaskListAsync(long taskListId, int userDayNumber);
     Task<List<ToDoList>> GetRecommendedTaskListsAsync(long userId);
-    Task<ToDoList> CreateTaskListAsync(long userId, string title, string? description);
-    Task<ToDoList> UpdateTaskListAsync(long taskListId, string title, string? description);
+    Task<ToDoList> CreateTaskListAsync(long userId, string title, string? description, int requiredPoints);
+    Task<ToDoList> UpdateTaskListAsync(long taskListId, string title, string? description, int requiredPoints);
     Task<bool> DeleteTaskListAsync(long taskListId);
     Task<bool> MarkTaskCompletedAsync(long taskListId, long taskId);
-    Task<ToDoTask> CreateTaskAsync(long taskListId, string title, string? description, string priority, DateTime? dueDate);
+    Task<ToDoTask> CreateTaskAsync(long taskListId, string title, string? description, string priority, DateTime? dueDate, int points);
     Task<bool> DeleteTaskAsync(long taskListId, long taskId);
-    Task<ToDoTask?> UpdateTaskAsync(long taskListId, long taskId, string title, string? description, string priority, DateTime? dueDate);
+    Task<ToDoTask?> UpdateTaskAsync(long taskListId, long taskId, string title, string? description, string priority, DateTime? dueDate, int points);
 }
 
 public class ToDoTaskService : IToDoTaskService
@@ -56,7 +56,7 @@ public class ToDoTaskService : IToDoTaskService
         return Task.FromResult(recommendedTaskLists);
     }
 
-    public Task<ToDoList> CreateTaskListAsync(long userId, string title, string? description)
+    public Task<ToDoList> CreateTaskListAsync(long userId, string title, string? description, int requiredPoints)
     {
         var taskList = new ToDoList
         {
@@ -64,14 +64,15 @@ public class ToDoTaskService : IToDoTaskService
             Title = title,
             Description = description,
             CreatedAt = DateTime.UtcNow,
-            UserId = userId
+            UserId = userId,
+            RequiredPoints = requiredPoints
         };
         _taskLists.Add(taskList);
         Console.WriteLine("create task list");
         return Task.FromResult(taskList);
     }
 
-    public Task<ToDoList> UpdateTaskListAsync(long taskListId, string title, string? description)
+    public Task<ToDoList> UpdateTaskListAsync(long taskListId, string title, string? description, int requiredPoints)
     {
         var taskList = _taskLists.FirstOrDefault(tl => tl.Id == taskListId);
         if (taskList == null)
@@ -81,6 +82,7 @@ public class ToDoTaskService : IToDoTaskService
 
         taskList.Title = title;
         taskList.Description = description;
+        taskList.RequiredPoints = requiredPoints;
         return Task.FromResult(taskList);
     }
     
@@ -110,7 +112,7 @@ public class ToDoTaskService : IToDoTaskService
         return Task.FromResult(true);
     }
 
-    public Task<ToDoTask> CreateTaskAsync(long taskListId, string title, string? description, string priority, DateTime? dueDate)
+    public Task<ToDoTask> CreateTaskAsync(long taskListId, string title, string? description, string priority, DateTime? dueDate, int points)
     {
         var task = new ToDoTask
         {
@@ -119,7 +121,8 @@ public class ToDoTaskService : IToDoTaskService
             Description = description,
             Priority = priority,
             DueDate = dueDate,
-            ToDoTaskListId = taskListId
+            ToDoTaskListId = taskListId,
+            Points = points
         };
         _tasks.Add(task);
         Console.WriteLine("create task");
@@ -138,7 +141,7 @@ public class ToDoTaskService : IToDoTaskService
         return Task.FromResult(true);
     }
 
-    public Task<ToDoTask?> UpdateTaskAsync(long taskListId, long taskId, string title, string? description, string priority, DateTime? dueDate)
+    public Task<ToDoTask?> UpdateTaskAsync(long taskListId, long taskId, string title, string? description, string priority, DateTime? dueDate, int points)
     {
         var task = _tasks.FirstOrDefault(t => t.ToDoTaskListId == taskListId && t.Id == taskId);
         if (task == null)
@@ -150,6 +153,7 @@ public class ToDoTaskService : IToDoTaskService
         task.Description = description;
         task.Priority = priority;
         task.DueDate = dueDate;
+        task.Points = points;
 
         return Task.FromResult<ToDoTask?>(task);
     }

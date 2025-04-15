@@ -15,15 +15,18 @@
       <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/App.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/CreateTask.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/CreateTask.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/CreateTaskList.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/CreateTaskList.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/EditTask.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/EditTask.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/EditTaskList.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/EditTaskList.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/Login.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/Login.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskList.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskList.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskLists.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskLists.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/Controllers/UserAPIHandlerController.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/UserAPI.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/UserAPI.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/appsettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/services/taskService.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/services/taskService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/Controllers/ToDoTaskController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/Controllers/ToDoTaskController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/Models/ToDoList.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/Models/ToDoList.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/Models/ToDoTask.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/Models/ToDoTask.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/Services/ToDoTaskService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/Services/ToDoTaskService.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -134,7 +137,8 @@
       <workItem from="1744580080792" duration="4187000" />
       <workItem from="1744587980780" duration="6122000" />
       <workItem from="1744671341719" duration="119000" />
-      <workItem from="1744671496408" duration="2385000" />
+      <workItem from="1744671496408" duration="4159000" />
+      <workItem from="1744677581987" duration="303000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -184,7 +188,15 @@
       <option name="project" value="LOCAL" />
       <updated>1744630324527</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Фронтенд - Авторизация">
+      <option name="closed" value="true" />
+      <created>1744674093972</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1744674093972</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -197,6 +209,8 @@
     <MESSAGE value="Initial commit" />
     <MESSAGE value="Фронтенд" />
     <MESSAGE value="Фронтенд - Создавать списки дел/задачи" />
-    <option name="LAST_COMMIT_MESSAGE" value="Фронтенд - Создавать списки дел/задачи" />
+    <MESSAGE value="Фронтенд - Редактировать/удалять списки дел/задачи" />
+    <MESSAGE value="Фронтенд - Авторизация" />
+    <option name="LAST_COMMIT_MESSAGE" value="Фронтенд - Авторизация" />
   </component>
 </project>

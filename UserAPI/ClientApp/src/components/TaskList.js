@@ -22,7 +22,8 @@ import {
   Select,
   MenuItem,
   Alert,
-  Checkbox
+  Checkbox,
+  Chip
 } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
@@ -31,6 +32,10 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import taskService from '../services/taskService';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 
 const TaskList = () => {
   const { id } = useParams();
@@ -48,7 +53,8 @@ const TaskList = () => {
     title: '',
     description: '',
     priority: 'medium',
-    dueDate: null
+    dueDate: null,
+    points: 0
   });
 
   useEffect(() => {
@@ -77,7 +83,8 @@ const TaskList = () => {
         title: task.title,
         description: task.description || '',
         priority: task.priority,
-        dueDate: task.dueDate ? new Date(task.dueDate) : null
+        dueDate: task.dueDate ? new Date(task.dueDate) : null,
+        points: task.points || 0
       });
     } else {
       setEditingTask(null);
@@ -85,7 +92,8 @@ const TaskList = () => {
         title: '',
         description: '',
         priority: 'medium',
-        dueDate: null
+        dueDate: null,
+        points: 0
       });
     }
     setOpenTaskDialog(true);
@@ -102,10 +110,26 @@ const TaskList = () => {
 
       if (editingTask) {
         // Обновление существующей задачи
-        await taskService.updateTask(id, editingTask.id, taskForm.title, taskForm.description, taskForm.priority, taskForm.dueDate);
+        await taskService.updateTask(
+          id, 
+          editingTask.id, 
+          taskForm.title, 
+          taskForm.description, 
+          taskForm.completed,
+          taskForm.priority, 
+          taskForm.dueDate,
+          taskForm.points
+        );
       } else {
         // Создание новой задачи
-        await taskService.createTask(id, taskForm.title, taskForm.description, taskForm.priority, taskForm.dueDate);
+        await taskService.createTask(
+          id, 
+          taskForm.title, 
+          taskForm.description, 
+          taskForm.priority, 
+          taskForm.dueDate,
+          taskForm.points
+        );
       }
 
       // Обновляем список задач
@@ -143,6 +167,19 @@ const TaskList = () => {
     } catch (err) {
       console.error('Ошибка при обновлении статуса задачи:', err);
       setError('Не удалось обновить статус задачи. Пожалуйста, попробуйте позже.');
+    }
+  };
+
+  const getPriorityColor = (priority) => {
+    switch (priority.toLowerCase()) {
+      case 'high':
+        return 'error';
+      case 'medium':
+        return 'warning';
+      case 'low':
+        return 'success';
+      default:
+        return 'default';
     }
   };
 
@@ -197,24 +234,53 @@ const TaskList = () => {
         {tasks.map((task, index) => (
           <React.Fragment key={task.id}>
             <ListItem>
-              <Checkbox
-                checked={task.completed}
-                onChange={() => handleTaskCompletion(task.id)}
-              />
+              <IconButton
+                edge="start"
+                onClick={() => handleTaskCompletion(task.id)}
+              >
+                {task.completed ? (
+                  <CheckCircleIcon color="success" />
+                ) : (
+                  <RadioButtonUncheckedIcon />
+                )}
+              </IconButton>
               <ListItemText
-                primary={task.title}
+                primary={
+                  <Typography
+                    style={{
+                      textDecoration: task.completed ? 'line-through' : 'none'
+                    }}
+                  >
+                    {task.title}
+                  </Typography>
+                }
                 secondary={
-                  <>
+                  <Box>
                     {task.description && (
                       <Typography variant="body2" color="text.secondary">
                         {task.description}
                       </Typography>
                     )}
-                    <Typography variant="caption" color="text.secondary">
-                      Приоритет: {task.priority}
-                      {task.dueDate && ` • Срок: ${new Date(task.dueDate).toLocaleDateString()}`}
-                    </Typography>
-                  </>
+                    <Box display="flex" gap={1} mt={1}>
+                      <Chip
+                        label={task.priority}
+                        color={getPriorityColor(task.priority)}
+                        size="small"
+                      />
+                      <Chip
+                        label={`${task.points} очков`}
+                        color="info"
+                        size="small"
+                      />
+                      {task.dueDate && (
+                        <Chip
+                          label={new Date(task.dueDate).toLocaleDateString()}
+                          variant="outlined"
+                          size="small"
+                        />
+                      )}
+                    </Box>
+                  </Box>
                 }
               />
               <ListItemSecondaryAction>
@@ -265,6 +331,16 @@ const TaskList = () => {
                 <MenuItem value="high">Высокий</MenuItem>
               </Select>
             </FormControl>
+            <TextField
+              fullWidth
+              label="Очки"
+              type="number"
+              value={taskForm.points}
+              onChange={(e) => setTaskForm({ ...taskForm, points: parseInt(e.target.value) || 0 })}
+              margin="normal"
+              inputProps={{ min: 0 }}
+              required
+            />
             <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
               <DatePicker
                 label="Срок выполнения"

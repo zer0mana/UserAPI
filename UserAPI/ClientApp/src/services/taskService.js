@@ -70,10 +70,14 @@ class TaskService {
         }
     }
 
-    async createTaskList(title, description) {
+    async createTaskList(title, description, requiredPoints) {
         try {
-            console.log('Creating task list with:', { title, description });
-            const response = await api.post('/todotask/lists', { title, description });
+            console.log('Creating task list with:', { title, description, requiredPoints });
+            const response = await api.post('/todotask/lists', {
+                title,
+                description,
+                requiredPoints
+            });
             console.log('Task list created:', response.data);
             return response.data;
         } catch (error) {
@@ -86,9 +90,13 @@ class TaskService {
         }
     }
 
-    async updateTaskList(taskListId, title, description) {
+    async updateTaskList(taskListId, title, description, requiredPoints) {
         try {
-            const response = await api.put(`/todotask/lists/${taskListId}`, { title, description });
+            const response = await api.put(`/todotask/lists/${taskListId}`, {
+                title,
+                description,
+                requiredPoints
+            });
             return response.data;
         } catch (error) {
             console.error(`Error updating task list ${taskListId}:`, error);
@@ -105,13 +113,24 @@ class TaskService {
         }
     }
 
-    async createTask(taskListId, title, description, priority, dueDate) {
+    async getTasks(taskListId) {
+        try {
+            const response = await api.get(`/todotask/lists/${taskListId}/tasks`);
+            return response.data;
+        } catch (error) {
+            console.error(`Error fetching tasks from list ${taskListId}:`, error);
+            throw error;
+        }
+    }
+
+    async createTask(taskListId, title, description, priority, dueDate, points) {
         try {
             const response = await api.post(`/todotask/lists/${taskListId}/tasks`, {
                 title,
                 description,
                 priority,
-                dueDate
+                dueDate,
+                points
             });
             return response.data;
         } catch (error) {
@@ -120,13 +139,15 @@ class TaskService {
         }
     }
 
-    async updateTask(taskListId, taskId, title, description, priority, dueDate) {
+    async updateTask(taskListId, taskId, title, description, completed, priority, dueDate, points) {
         try {
             const response = await api.put(`/todotask/lists/${taskListId}/tasks/${taskId}`, {
                 title,
                 description,
+                completed,
                 priority,
-                dueDate
+                dueDate,
+                points
             });
             return response.data;
         } catch (error) {
@@ -146,7 +167,8 @@ class TaskService {
 
     async markTaskCompleted(taskListId, taskId) {
         try {
-            await api.put(`/todotask/lists/${taskListId}/tasks/${taskId}/complete`);
+            const response = await api.put(`/todotask/lists/${taskListId}/tasks/${taskId}/complete`);
+            return response.data;
         } catch (error) {
             console.error(`Error marking task ${taskId} as completed in list ${taskListId}:`, error);
             throw error;

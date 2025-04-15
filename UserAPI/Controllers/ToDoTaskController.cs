@@ -49,7 +49,7 @@ namespace UserAPI.Controllers
         public async Task<IActionResult> CreateTaskList([FromBody] CreateTaskListRequest request)
         {
             var userId = long.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
-            var taskList = await _taskService.CreateTaskListAsync(userId, request.Title, request.Description);
+            var taskList = await _taskService.CreateTaskListAsync(userId, request.Title, request.Description, request.RequiredPoints);
             return CreatedAtAction(nameof(GetTaskList), new { taskListId = taskList.Id }, taskList);
         }
 
@@ -63,7 +63,7 @@ namespace UserAPI.Controllers
                 return NotFound();
             }
 
-            var updatedTaskList = await _taskService.UpdateTaskListAsync(taskListId, request.Title, request.Description);
+            var updatedTaskList = await _taskService.UpdateTaskListAsync(taskListId, request.Title, request.Description, request.RequiredPoints);
             return Ok(updatedTaskList);
         }
 
@@ -91,7 +91,7 @@ namespace UserAPI.Controllers
                 return NotFound();
             }
 
-            var task = await _taskService.CreateTaskAsync(taskListId, request.Title, request.Description, request.Priority, request.DueDate);
+            var task = await _taskService.CreateTaskAsync(taskListId, request.Title, request.Description, request.Priority, request.DueDate, request.Points);
             return CreatedAtAction(nameof(GetTaskList), new { taskListId }, task);
         }
 
@@ -105,7 +105,14 @@ namespace UserAPI.Controllers
                 return NotFound();
             }
 
-            var task = await _taskService.UpdateTaskAsync(taskListId, taskId, request.Title, request.Description, request.Priority, request.DueDate);
+            var task = await _taskService.UpdateTaskAsync(
+                taskListId,
+                taskId,
+                request.Title,
+                request.Description,
+                request.Priority,
+                request.DueDate,
+                request.Points);
             return task != null ? Ok(task) : NotFound();
         }
 
@@ -142,20 +149,25 @@ namespace UserAPI.Controllers
     {
         public string Title { get; set; }
         public string? Description { get; set; }
+        
+        public int RequiredPoints { get; set; }
     }
 
     public class UpdateTaskListRequest
     {
         public string Title { get; set; }
         public string? Description { get; set; }
+        
+        public int RequiredPoints { get; set; }
     }
 
     public class CreateTaskRequest
     {
         public string Title { get; set; }
-        public string? Description { get; set; }
+        public string Description { get; set; }
         public string Priority { get; set; }
         public DateTime? DueDate { get; set; }
+        public int Points { get; set; }
     }
 
     public class UpdateTaskRequest
@@ -164,5 +176,6 @@ namespace UserAPI.Controllers
         public string? Description { get; set; }
         public string Priority { get; set; }
         public DateTime? DueDate { get; set; }
+        public int Points { get; set; }
     }
 } 

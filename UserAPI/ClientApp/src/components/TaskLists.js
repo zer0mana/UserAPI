@@ -8,7 +8,8 @@ import {
   CardContent,
   CardActions,
   CircularProgress,
-  Alert
+  Alert,
+  Chip
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import taskService from '../services/taskService';
@@ -82,9 +83,22 @@ const TaskLists = () => {
                   <Typography variant="body2" color="text.secondary">
                     {list.description || 'Без описания'}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                    Задач: {list.taskCount || 0}
-                  </Typography>
+                  <Box sx={{ mt: 1 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Задач: {list.taskCount || 0}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Очки: {list.totalPoints || 0} / {list.requiredPoints || 0}
+                    </Typography>
+                    {list.isCompleted && (
+                      <Chip 
+                        label="Выполнено" 
+                        color="success" 
+                        size="small" 
+                        sx={{ mt: 1 }}
+                      />
+                    )}
+                  </Box>
                 </CardContent>
                 <CardActions>
                   <Button 
