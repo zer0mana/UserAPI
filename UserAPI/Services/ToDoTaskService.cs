@@ -26,7 +26,10 @@ public class ToDoTaskService : IToDoTaskService
 
     public Task<List<ToDoList>> GetTaskListsAsync(long userId)
     {
-        var userTaskLists = _taskLists.Where(tl => tl.UserId == userId).ToList();
+        var userTaskLists = _taskLists
+            //.Where(tl => tl.UserId == userId)
+            .ToList();
+        
         foreach (var taskList in userTaskLists)
         {
             taskList.ToDoTasks = _tasks.Where(t => t.ToDoTaskListId == taskList.Id).ToList();

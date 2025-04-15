@@ -47,6 +47,11 @@ class AuthService {
                 password
             });
             if (response.data.token) {
+                // Добавляем ID пользователя из токена
+                const tokenPayload = JSON.parse(atob(response.data.token.split('.')[1]));
+                console.log('Токен payload:', tokenPayload);
+                response.data.id = tokenPayload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+                console.log('Извлеченный ID:', response.data.id);
                 localStorage.setItem('user', JSON.stringify(response.data));
             }
             return response.data;

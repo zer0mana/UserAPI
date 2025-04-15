@@ -36,6 +36,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import authService from '../services/authService';
 
 const TaskList = () => {
   const { id } = useParams();
@@ -45,6 +46,7 @@ const TaskList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [tasks, setTasks] = useState([]);
+  const [isOwner, setIsOwner] = useState(false);
   
   // Состояние для диалога создания/редактирования задачи
   const [openTaskDialog, setOpenTaskDialog] = useState(false);
@@ -65,6 +67,16 @@ const TaskList = () => {
         setTitle(response.title);
         setDescription(response.description || '');
         setTasks(response.toDoTasks || []);
+        
+        // Проверяем, является ли текущий пользователь владельцем списка
+        const currentUser = authService.getCurrentUser();
+        console.log('Текущий пользователь:', currentUser);
+        console.log('ID пользователя из токена:', currentUser?.id);
+        console.log('ID владельца списка:', response.userId);
+        console.log('Тип ID пользователя:', typeof currentUser?.id);
+        console.log('Тип ID владельца:', typeof response.userId);
+        setIsOwner(currentUser && Number(currentUser.id) === response.userId);
+        
         setLoading(false);
       } catch (err) {
         console.error('Ошибка при загрузке списка задач:', err);
@@ -198,31 +210,35 @@ const TaskList = () => {
           <Typography variant="h5" component="h1">
             {title}
           </Typography>
-          <Button
-            variant="outlined"
-            onClick={() => navigate(`/edit-task-list/${id}`)}
-          >
-            Редактировать список
-          </Button>
+          {isOwner && (
+            <Box>
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<AddIcon />}
+                onClick={() => handleOpenTaskDialog()}
+                sx={{ mr: 1 }}
+              >
+                Добавить задачу
+              </Button>
+              <Button
+                variant="outlined"
+                color="primary"
+                component={Link}
+                to={`/edit-task-list/${id}`}
+                startIcon={<EditIcon />}
+              >
+                Редактировать список
+              </Button>
+            </Box>
+          )}
         </Box>
-        
         {description && (
-          <Typography variant="body1" color="text.secondary" paragraph>
+          <Typography variant="body1" color="text.secondary" mb={2}>
             {description}
           </Typography>
         )}
       </Paper>
-
-      <Box display="flex" justifyContent="flex-end" mb={2}>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenTaskDialog()}
-        >
-          Добавить задачу
-        </Button>
-      </Box>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -231,28 +247,27 @@ const TaskList = () => {
       )}
 
       <List>
-        {tasks.map((task, index) => (
+        {tasks.map((task) => (
           <React.Fragment key={task.id}>
             <ListItem>
-              <IconButton
-                edge="start"
-                onClick={() => handleTaskCompletion(task.id)}
-              >
-                {task.completed ? (
-                  <CheckCircleIcon color="success" />
-                ) : (
-                  <RadioButtonUncheckedIcon />
-                )}
-              </IconButton>
               <ListItemText
                 primary={
-                  <Typography
-                    style={{
-                      textDecoration: task.completed ? 'line-through' : 'none'
-                    }}
-                  >
-                    {task.title}
-                  </Typography>
+                  <Box display="flex" alignItems="center">
+                    <Checkbox
+                      checked={task.completed}
+                      onChange={() => handleTaskCompletion(task.id)}
+                      icon={<RadioButtonUncheckedIcon />}
+                      checkedIcon={<CheckCircleIcon />}
+                    />
+                    <Typography
+                      sx={{
+                        textDecoration: task.completed ? 'line-through' : 'none',
+                        color: task.completed ? 'text.secondary' : 'text.primary'
+                      }}
+                    >
+                      {task.title}
+                    </Typography>
+                  </Box>
                 }
                 secondary={
                   <Box>
@@ -267,11 +282,6 @@ const TaskList = () => {
                         color={getPriorityColor(task.priority)}
                         size="small"
                       />
-                      <Chip
-                        label={`${task.points} очков`}
-                        color="info"
-                        size="small"
-                      />
                       {task.dueDate && (
                         <Chip
                           label={new Date(task.dueDate).toLocaleDateString()}
@@ -279,20 +289,38 @@ const TaskList = () => {
                           size="small"
                         />
                       )}
+                      {task.points > 0 && (
+                        <Chip
+                          label={`${task.points} баллов`}
+                          color="primary"
+                          size="small"
+                        />
+                      )}
                     </Box>
                   </Box>
                 }
               />
-              <ListItemSecondaryAction>
-                <IconButton edge="end" onClick={() => handleOpenTaskDialog(task)}>
-                  <EditIcon />
-                </IconButton>
-                <IconButton edge="end" onClick={() => handleDeleteTask(task.id)}>
-                  <DeleteIcon />
-                </IconButton>
-              </ListItemSecondaryAction>
+              {isOwner && (
+                <ListItemSecondaryAction>
+                  <IconButton
+                    edge="end"
+                    aria-label="edit"
+                    onClick={() => handleOpenTaskDialog(task)}
+                    sx={{ mr: 1 }}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton
+                    edge="end"
+                    aria-label="delete"
+                    onClick={() => handleDeleteTask(task.id)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </ListItemSecondaryAction>
+              )}
             </ListItem>
-            {index < tasks.length - 1 && <Divider />}
+            <Divider />
           </React.Fragment>
         ))}
       </List>

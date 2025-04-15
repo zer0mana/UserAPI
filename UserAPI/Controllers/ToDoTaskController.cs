@@ -30,7 +30,8 @@ namespace UserAPI.Controllers
         {
             var userId = long.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
             var taskList = await _taskService.GetTaskListAsync(taskListId, 0);
-            if (taskList == null || taskList.UserId != userId)
+            if (taskList == null)
+                // || taskList.UserId != userId)
             {
                 return NotFound();
             }
