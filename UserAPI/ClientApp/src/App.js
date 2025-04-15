@@ -36,7 +36,6 @@ const theme = createTheme({
 const Navigation = () => {
   const navigate = useNavigate();
   const isAuthenticated = authService.isAuthenticated();
-  const user = authService.getCurrentUser();
 
   const handleLogout = () => {
     authService.logout();
@@ -44,30 +43,38 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="navbar">
-      <div className="nav-brand">
-        <Link to="/">TaskTracker</Link>
-      </div>
-      <div className="nav-links">
+    <AppBar position="static">
+      <Toolbar>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          TaskTracker
+        </Typography>
         {isAuthenticated ? (
           <>
-            <Link to="/" className="nav-link">Мои списки</Link>
-            <Link to="/recommended" className="nav-link">Рекомендации</Link>
-            <span className="user-info">
-              {user.firstName ? `${user.firstName} ${user.lastName}` : user.email}
-            </span>
-            <button onClick={handleLogout} className="logout-button">
+            <Button color="inherit" component={Link} to="/">
+              Мои списки
+            </Button>
+            <Button color="inherit" component={Link} to="/create-task-list">
+              Создать список
+            </Button>
+            <Button color="inherit" component={Link} to="/recommended">
+              Рекомендации
+            </Button>
+            <Button color="inherit" onClick={handleLogout}>
               Выйти
-            </button>
+            </Button>
           </>
         ) : (
           <>
-            <Link to="/login">Войти</Link>
-            <Link to="/register">Регистрация</Link>
+            <Button color="inherit" component={Link} to="/login">
+              Войти
+            </Button>
+            <Button color="inherit" component={Link} to="/register">
+              Регистрация
+            </Button>
           </>
         )}
-      </div>
-    </nav>
+      </Toolbar>
+    </AppBar>
   );
 };
 
@@ -76,48 +83,33 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <AppBar position="static">
-          <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Система управления задачами
-            </Typography>
-            <Box>
-              <Button color="inherit" component={Link} to="/">
-                Списки задач
-              </Button>
-              <Button color="inherit" component={Link} to="/create-task-list">
-                Создать список
-              </Button>
-            </Box>
-          </Toolbar>
-        </AppBar>
-
-        <div className="App">
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <Navigation />
-          <Header />
-          <div className="container">
-            <Routes>
-              <Route path="/" element={<TaskLists />} />
-              <Route path="/create-task-list" element={<CreateTaskList />} />
-              <Route path="/task-list/:id" element={<TaskList />} />
-              <Route path="/edit-task-list/:id" element={<EditTaskList />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/edit-task/:id" element={
-                <ProtectedRoute>
-                  <EditTask />
-                </ProtectedRoute>
-              } />
-              <Route path="/create-task" element={
-                <ProtectedRoute>
-                  <CreateTask />
-                </ProtectedRoute>
-              } />
-              <Route path="/" element={<PrivateRoute><TaskLists /></PrivateRoute>} />
-              <Route path="/recommended" element={<PrivateRoute><RecommendedTaskLists /></PrivateRoute>} />
-            </Routes>
+          <div className="App">
+            <div className="container">
+              <Routes>
+                <Route path="/" element={<TaskLists />} />
+                <Route path="/create-task-list" element={<CreateTaskList />} />
+                <Route path="/task-list/:id" element={<TaskList />} />
+                <Route path="/edit-task-list/:id" element={<EditTaskList />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/edit-task/:id" element={
+                  <ProtectedRoute>
+                    <EditTask />
+                  </ProtectedRoute>
+                } />
+                <Route path="/create-task" element={
+                  <ProtectedRoute>
+                    <CreateTask />
+                  </ProtectedRoute>
+                } />
+                <Route path="/" element={<PrivateRoute><TaskLists /></PrivateRoute>} />
+                <Route path="/recommended" element={<PrivateRoute><RecommendedTaskLists /></PrivateRoute>} />
+              </Routes>
+            </div>
           </div>
-        </div>
+        </Box>
       </Router>
     </ThemeProvider>
   );
