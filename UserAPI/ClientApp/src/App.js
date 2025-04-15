@@ -36,6 +36,7 @@ const theme = createTheme({
 const Navigation = () => {
   const navigate = useNavigate();
   const isAuthenticated = authService.isAuthenticated();
+  const user = authService.getCurrentUser();
 
   const handleLogout = () => {
     authService.logout();
@@ -59,7 +60,21 @@ const Navigation = () => {
             <Button color="inherit" component={Link} to="/recommended">
               Рекомендации
             </Button>
-            <Button color="inherit" onClick={handleLogout}>
+            <Typography variant="body1" sx={{ mx: 2, color: 'white' }}>
+              {user?.firstName ? `${user.firstName} ${user.lastName}` : user?.email}
+            </Typography>
+            <Button 
+              variant="contained" 
+              color="error" 
+              onClick={handleLogout}
+              sx={{ 
+                ml: 2,
+                backgroundColor: '#d32f2f',
+                '&:hover': {
+                  backgroundColor: '#b71c1c'
+                }
+              }}
+            >
               Выйти
             </Button>
           </>

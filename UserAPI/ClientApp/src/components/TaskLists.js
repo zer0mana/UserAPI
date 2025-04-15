@@ -52,64 +52,87 @@ const TaskLists = () => {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1">
+    <Box sx={{ p: 3, maxWidth: '100%', mx: 'auto' }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+        <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
           Мои списки задач
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          component={RouterLink}
-          to="/create-task-list"
-        >
-          Создать новый список
-        </Button>
       </Box>
 
       {taskLists.length === 0 ? (
-        <Typography variant="body1" align="center">
-          У вас пока нет списков задач. Создайте новый список, чтобы начать.
-        </Typography>
+        <Box sx={{ textAlign: 'center', py: 8 }}>
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            У вас пока нет списков задач
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Создайте новый список, чтобы начать.
+          </Typography>
+        </Box>
       ) : (
-        <Grid container spacing={3}>
+        <Grid container spacing={2}>
           {taskLists.map((list) => (
-            <Grid item xs={12} sm={6} md={4} key={list.id}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" component="h2">
-                    {list.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {list.description || 'Без описания'}
-                  </Typography>
-                  <Box sx={{ mt: 1 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      Задач: {list.taskCount || 0}
+            <Grid item xs={12} key={list.id}>
+              <Card sx={{ 
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                boxShadow: 2,
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: 4
+                },
+                mb: 2,
+                borderRadius: 2
+              }}>
+                <CardContent sx={{ 
+                  flexGrow: 1, 
+                  p: 3,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  width: '100%'
+                }}>
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Typography variant="h5" component="h2" sx={{ fontWeight: 'medium', mb: 1 }}>
+                      {list.title}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Очки: {list.totalPoints || 0} / {list.requiredPoints || 0}
+                    <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                      {list.description || 'Без описания'}
                     </Typography>
-                    {list.isCompleted && (
-                      <Chip 
-                        label="Выполнено" 
-                        color="success" 
-                        size="small" 
-                        sx={{ mt: 1 }}
-                      />
-                    )}
+                    <Box sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+                      <Typography variant="body2" color="text.secondary">
+                        Задач: {list.taskCount || 0}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Очки: {list.totalPoints || 0} / {list.requiredPoints || 0}
+                      </Typography>
+                      {list.isCompleted && (
+                        <Chip 
+                          label="Выполнено" 
+                          color="success" 
+                          size="small"
+                        />
+                      )}
+                    </Box>
+                  </Box>
+                  <Box sx={{ ml: 3 }}>
+                    <Button 
+                      variant="contained" 
+                      color="primary" 
+                      component={RouterLink} 
+                      to={`/task-list/${list.id}`}
+                      size="large"
+                      sx={{
+                        minWidth: '120px',
+                        height: '45px'
+                      }}
+                    >
+                      Открыть
+                    </Button>
                   </Box>
                 </CardContent>
-                <CardActions>
-                  <Button 
-                    size="small" 
-                    color="primary" 
-                    component={RouterLink} 
-                    to={`/task-list/${list.id}`}
-                  >
-                    Открыть
-                  </Button>
-                </CardActions>
               </Card>
             </Grid>
           ))}
