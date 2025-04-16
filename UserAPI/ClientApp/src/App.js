@@ -17,6 +17,7 @@ import Register from './components/Register';
 import PrivateRoute from './components/PrivateRoute';
 import authService from './services/authService';
 import RecommendedTaskLists from './components/RecommendedTaskLists';
+import SearchTaskLists from './components/SearchTaskLists';
 import './App.css';
 
 const theme = createTheme({
@@ -57,8 +58,21 @@ const Navigation = () => {
             <Button color="inherit" component={Link} to="/create-task-list">
               Создать список
             </Button>
-            <Button color="inherit" component={Link} to="/recommended">
+            <Button 
+              color="inherit" 
+              component={Link} 
+              to="/recommended"
+              sx={{ mr: 2 }}
+            >
               Рекомендации
+            </Button>
+            <Button 
+              color="inherit" 
+              component={Link} 
+              to="/search"
+              sx={{ mr: 2 }}
+            >
+              Поиск
             </Button>
             <Typography variant="body1" sx={{ mx: 2, color: 'white' }}>
               {user?.firstName ? `${user.firstName} ${user.lastName}` : user?.email}
@@ -121,6 +135,7 @@ function App() {
                 } />
                 <Route path="/" element={<PrivateRoute><TaskLists /></PrivateRoute>} />
                 <Route path="/recommended" element={<PrivateRoute><RecommendedTaskLists /></PrivateRoute>} />
+                <Route path="/search" element={<SearchTaskLists />} />
               </Routes>
             </div>
           </div>

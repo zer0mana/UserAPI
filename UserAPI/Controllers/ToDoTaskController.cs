@@ -45,6 +45,17 @@ namespace UserAPI.Controllers
             var taskLists = await _taskService.GetRecommendedTaskListsAsync(userId);
             return Ok(taskLists);
         }
+        
+        [HttpGet("lists/search")]
+        public async Task<IActionResult> SearchTaskLists([FromQuery] string query)
+        {
+            var userId = long.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+
+            var taskLists = await _taskService.GetTaskListsAsync(userId);
+            
+            Console.WriteLine(taskLists.Count);
+            return Ok(taskLists);
+        }
 
         [HttpPost("lists")]
         public async Task<IActionResult> CreateTaskList([FromBody] CreateTaskListRequest request)

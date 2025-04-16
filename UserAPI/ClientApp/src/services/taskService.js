@@ -187,6 +187,28 @@ class TaskService {
             throw error;
         }
     }
+
+    async searchTaskLists(query) {
+        try {
+            console.log('Поиск списков задач:', query);
+            const response = await api.get(`/todotask/lists/search?query=${encodeURIComponent(query)}`);
+            console.log('Сырой ответ от сервера:', response);
+            console.log('Данные ответа:', response.data);
+            // Проверяем, что response.data - это массив
+            if (!Array.isArray(response.data)) {
+                console.warn('Ответ от сервера не является массивом:', response.data);
+                return [];
+            }
+            return response.data;
+        } catch (error) {
+            console.error('Ошибка при поиске списков задач:', error);
+            if (error.response) {
+                console.error('Данные ответа:', error.response.data);
+                console.error('Статус ответа:', error.response.status);
+            }
+            throw error;
+        }
+    }
 }
 
 export default new TaskService(); 

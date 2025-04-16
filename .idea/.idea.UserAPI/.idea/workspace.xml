@@ -9,9 +9,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="50da57f9-91b9-4780-8580-152e42271850" name="Changes" comment="">
+    <list default="true" id="50da57f9-91b9-4780-8580-152e42271850" name="Changes" comment="Фронтенд - Поиск">
+      <change afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/SearchTaskLists.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.UserAPI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.UserAPI/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskList.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskList.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/services/taskService.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/services/taskService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/Controllers/ToDoTaskController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/Controllers/ToDoTaskController.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -124,6 +127,8 @@
       <workItem from="1744671341719" duration="119000" />
       <workItem from="1744671496408" duration="4159000" />
       <workItem from="1744677581987" duration="2171000" />
+      <workItem from="1744710940568" duration="4975000" />
+      <workItem from="1744748681226" duration="2293000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -189,7 +194,39 @@
       <option name="project" value="LOCAL" />
       <updated>1744678396443</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Фронтенд - Подписки">
+      <option name="closed" value="true" />
+      <created>1744732948925</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1744732948926</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Фронтенд - Подписки">
+      <option name="closed" value="true" />
+      <created>1744733704789</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1744733704789</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Фронтенд - Рефакторинг">
+      <option name="closed" value="true" />
+      <created>1744734280653</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1744734280653</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Фронтенд - Рефакторинг">
+      <option name="closed" value="true" />
+      <created>1744734727792</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1744734727792</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -205,6 +242,28 @@
     <MESSAGE value="Фронтенд - Редактировать/удалять списки дел/задачи" />
     <MESSAGE value="Фронтенд - Авторизация" />
     <MESSAGE value="Фронтенд - Очки" />
-    <option name="LAST_COMMIT_MESSAGE" value="Фронтенд - Очки" />
+    <MESSAGE value="Фронтенд - Подписки" />
+    <MESSAGE value="Фронтенд - Рефакторинг" />
+    <MESSAGE value="Фронтенд - Поиск" />
+    <option name="LAST_COMMIT_MESSAGE" value="Фронтенд - Поиск" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/UserAPI/Controllers/ToDoTaskController.cs</url>
+          <line>45</line>
+          <properties documentPath="C:\Users\Max\RiderProjects\UserAPI\UserAPI\Controllers\ToDoTaskController.cs" containingFunctionPresentation="Method 'GetRecommendedTaskLists'">
+            <startOffsets>
+              <option value="1649" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1670" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
