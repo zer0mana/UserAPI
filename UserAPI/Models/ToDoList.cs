@@ -12,4 +12,5 @@ public class ToDoList
     public int RequiredPoints { get; set; } = 0;
     public int TotalPoints => ToDoTasks.Where(t => t.Completed).Sum(t => t.Points);
     public bool IsCompleted => TotalPoints >= RequiredPoints;
+    public int Streak { get; set; } = 10;
 }

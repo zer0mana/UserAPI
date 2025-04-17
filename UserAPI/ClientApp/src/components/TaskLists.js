@@ -9,10 +9,12 @@ import {
   CardActions,
   CircularProgress,
   Alert,
-  Chip
+  Chip,
+  Tooltip
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import taskService from '../services/taskService';
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 
 const TaskLists = () => {
   const [taskLists, setTaskLists] = useState([]);
@@ -108,6 +110,19 @@ const TaskLists = () => {
                       <Typography variant="body2" color="text.secondary">
                         Очки: {list.totalPoints || 0} / {list.requiredPoints || 0}
                       </Typography>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Tooltip title="Дней подряд">
+                          <Box display="flex" alignItems="center">
+                            <LocalFireDepartmentIcon sx={{ 
+                              color: list.streak > 0 ? 'orange' : 'grey.400',
+                              mr: 0.5 
+                            }} />
+                            <Typography variant="body2" color={list.streak > 0 ? 'text.secondary' : 'text.disabled'}>
+                              {list.streak || 0} дней
+                            </Typography>
+                          </Box>
+                        </Tooltip>
+                      </Box>
                       {list.isCompleted && (
                         <Chip 
                           label="Выполнено" 

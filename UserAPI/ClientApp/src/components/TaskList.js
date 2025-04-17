@@ -23,7 +23,8 @@ import {
   MenuItem,
   Alert,
   Checkbox,
-  Chip
+  Chip,
+  Tooltip
 } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
@@ -31,6 +32,7 @@ import { ru } from 'date-fns/locale';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import taskService from '../services/taskService';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
@@ -47,6 +49,7 @@ const TaskList = () => {
   const [error, setError] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [isOwner, setIsOwner] = useState(false);
+  const [streak, setStreak] = useState(0);
   
   // Состояние для диалога создания/редактирования задачи
   const [openTaskDialog, setOpenTaskDialog] = useState(false);
@@ -67,6 +70,7 @@ const TaskList = () => {
         setTitle(response.title);
         setDescription(response.description || '');
         setTasks(response.toDoTasks || []);
+        setStreak(response.streak || 0);
         
         // Проверяем, является ли текущий пользователь владельцем списка
         const currentUser = authService.getCurrentUser();
@@ -238,6 +242,19 @@ const TaskList = () => {
             {description}
           </Typography>
         )}
+        <Box display="flex" alignItems="center" gap={1}>
+          <Tooltip title="Дней подряд">
+            <Box display="flex" alignItems="center">
+              <LocalFireDepartmentIcon sx={{ 
+                color: streak > 0 ? 'orange' : 'grey.400',
+                mr: 0.5 
+              }} />
+              <Typography variant="body2" color={streak > 0 ? 'text.secondary' : 'text.disabled'}>
+                {streak} дней
+              </Typography>
+            </Box>
+          </Tooltip>
+        </Box>
       </Paper>
 
       {error && (

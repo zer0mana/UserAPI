@@ -9,12 +9,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="50da57f9-91b9-4780-8580-152e42271850" name="Changes" comment="Фронтенд - Поиск">
-      <change afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/SearchTaskLists.js" afterDir="false" />
+    <list default="true" id="50da57f9-91b9-4780-8580-152e42271850" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.UserAPI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.UserAPI/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/services/taskService.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/services/taskService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/Controllers/ToDoTaskController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/Controllers/ToDoTaskController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskList.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskList.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskLists.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskLists.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/Models/ToDoList.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/Models/ToDoList.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -128,7 +127,9 @@
       <workItem from="1744671496408" duration="4159000" />
       <workItem from="1744677581987" duration="2171000" />
       <workItem from="1744710940568" duration="4975000" />
-      <workItem from="1744748681226" duration="2293000" />
+      <workItem from="1744748681226" duration="2457000" />
+      <workItem from="1744922421461" duration="654000" />
+      <workItem from="1744929677220" duration="945000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -226,7 +227,23 @@
       <option name="project" value="LOCAL" />
       <updated>1744734727792</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Фронтенд - Поиск">
+      <option name="closed" value="true" />
+      <created>1744805538108</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1744805538108</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Фронтенд - Поиск">
+      <option name="closed" value="true" />
+      <created>1744805688812</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1744805688812</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
