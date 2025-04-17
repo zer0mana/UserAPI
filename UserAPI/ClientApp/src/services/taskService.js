@@ -43,6 +43,7 @@ class TaskService {
     async getTaskLists() {
         try {
             const response = await api.get('/todotask/lists');
+            console.log('Ответ от сервера при получении списков задач:', response.data);
             return response.data;
         } catch (error) {
             console.error('Error fetching task lists:', error);
@@ -206,6 +207,17 @@ class TaskService {
                 console.error('Данные ответа:', error.response.data);
                 console.error('Статус ответа:', error.response.status);
             }
+            throw error;
+        }
+    }
+
+    async getTaskAnalytics() {
+        try {
+            const response = await api.get('/todotask/analytics');
+            console.log('Ответ от сервера при получении аналитики:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching analytics:', error);
             throw error;
         }
     }

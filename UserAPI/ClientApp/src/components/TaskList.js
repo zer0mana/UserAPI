@@ -33,6 +33,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
+import BarChartIcon from '@mui/icons-material/BarChart';
 import taskService from '../services/taskService';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
@@ -210,51 +211,65 @@ const TaskList = () => {
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto', mt: 4, p: 2 }}>
       <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h5" component="h1">
-            {title}
-          </Typography>
-          {isOwner && (
-            <Box>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+          <Box>
+            <Typography variant="h4" component="h1" gutterBottom>
+              {title}
+            </Typography>
+            <Typography variant="body1" color="text.secondary" paragraph>
+              {description}
+            </Typography>
+            <Box display="flex" alignItems="center" gap={2}>
+              <Typography variant="body2" color="text.secondary">
+                Очки: {tasks.reduce((sum, task) => sum + (task.points || 0), 0)} / {tasks.reduce((sum, task) => sum + (task.requiredPoints || 0), 0)}
+              </Typography>
+              <Box display="flex" alignItems="center" gap={1}>
+                <LocalFireDepartmentIcon sx={{ 
+                  color: streak > 100 ? 'purple' : streak > 0 ? 'orange' : 'grey.400',
+                  fontSize: '1.2rem'
+                }} />
+                <Typography variant="body2" color={streak > 0 ? 'text.secondary' : 'text.disabled'}>
+                  {streak || 0} дней
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+          <Box>
+            {isOwner && (
               <Button
                 variant="contained"
                 color="primary"
                 startIcon={<AddIcon />}
                 onClick={() => handleOpenTaskDialog()}
-                sx={{ mr: 1 }}
+                sx={{ mr: 2 }}
               >
                 Добавить задачу
               </Button>
-              <Button
-                variant="outlined"
-                color="primary"
-                component={Link}
-                to={`/edit-task-list/${id}`}
-                startIcon={<EditIcon />}
-              >
-                Редактировать список
-              </Button>
-            </Box>
-          )}
+            )}
+            <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<BarChartIcon />}
+              component={Link}
+              to={`/analytics/${id}`}
+            >
+              Аналитика
+            </Button>
+          </Box>
         </Box>
-        {description && (
-          <Typography variant="body1" color="text.secondary" mb={2}>
-            {description}
-          </Typography>
+        {isOwner && (
+          <Box>
+            <Button
+              variant="outlined"
+              color="primary"
+              component={Link}
+              to={`/edit-task-list/${id}`}
+              startIcon={<EditIcon />}
+            >
+              Редактировать список
+            </Button>
+          </Box>
         )}
-        <Box display="flex" alignItems="center" gap={1}>
-          <Tooltip title="Дней подряд">
-            <Box display="flex" alignItems="center">
-              <LocalFireDepartmentIcon sx={{ 
-                color: streak > 0 ? 'orange' : 'grey.400',
-                mr: 0.5 
-              }} />
-              <Typography variant="body2" color={streak > 0 ? 'text.secondary' : 'text.disabled'}>
-                {streak} дней
-              </Typography>
-            </Box>
-          </Tooltip>
-        </Box>
       </Paper>
 
       {error && (

@@ -18,6 +18,7 @@ import PrivateRoute from './components/PrivateRoute';
 import authService from './services/authService';
 import RecommendedTaskLists from './components/RecommendedTaskLists';
 import SearchTaskLists from './components/SearchTaskLists';
+import TaskAnalytics from './components/TaskAnalytics';
 import './App.css';
 
 const theme = createTheme({
@@ -134,6 +135,7 @@ function App() {
                   </ProtectedRoute>
                 } />
                 <Route path="/" element={<PrivateRoute><TaskLists /></PrivateRoute>} />
+                <Route path="/analytics/:id" element={<TaskAnalytics />} />
                 <Route path="/recommended" element={<PrivateRoute><RecommendedTaskLists /></PrivateRoute>} />
                 <Route path="/search" element={<SearchTaskLists />} />
               </Routes>

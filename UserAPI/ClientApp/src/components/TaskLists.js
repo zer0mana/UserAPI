@@ -114,7 +114,7 @@ const TaskLists = () => {
                         <Tooltip title="Дней подряд">
                           <Box display="flex" alignItems="center">
                             <LocalFireDepartmentIcon sx={{ 
-                              color: list.streak > 0 ? 'orange' : 'grey.400',
+                              color: list.streak > 100 ? 'purple' : list.streak > 0 ? 'orange' : 'grey.400',
                               mr: 0.5 
                             }} />
                             <Typography variant="body2" color={list.streak > 0 ? 'text.secondary' : 'text.disabled'}>
