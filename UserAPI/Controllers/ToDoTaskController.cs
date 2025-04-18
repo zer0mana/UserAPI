@@ -186,9 +186,12 @@ namespace UserAPI.Controllers
                     new { Date = "2023-10-04", Points = 15 },
                     new { Date = "2023-10-05", Points = 12 }
                 },
-                Penalties = new[] {
-                    new { TaskType = "Late Submission", PointsDeducted = 5 },
-                    new { TaskType = "Incomplete Task", PointsDeducted = 3 }
+                DailyPenalties = new[] {
+                    new { Date = "2023-10-01", Points = 1 },
+                    new { Date = "2023-10-02", Points = 5 },
+                    new { Date = "2023-10-03", Points = 2 },
+                    new { Date = "2023-10-04", Points = 5 },
+                    new { Date = "2023-10-05", Points = 2 }
                 }
             };
             return Ok(analyticsData);
