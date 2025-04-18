@@ -60,8 +60,12 @@ const TaskList = () => {
     description: '',
     priority: 'medium',
     dueDate: null,
-    points: 0
+    points: 0,
+    isPenalty: false
   });
+
+  const [taskType, setTaskType] = useState('');
+  const [pointsDeducted, setPointsDeducted] = useState(0);
 
   useEffect(() => {
     const fetchTaskList = async () => {
@@ -101,7 +105,8 @@ const TaskList = () => {
         description: task.description || '',
         priority: task.priority,
         dueDate: task.dueDate ? new Date(task.dueDate) : null,
-        points: task.points || 0
+        points: task.points || 0,
+        isPenalty: task.isPenalty || false
       });
     } else {
       setEditingTask(null);
@@ -110,7 +115,8 @@ const TaskList = () => {
         description: '',
         priority: 'medium',
         dueDate: null,
-        points: 0
+        points: 0,
+        isPenalty: false
       });
     }
     setOpenTaskDialog(true);
@@ -124,7 +130,6 @@ const TaskList = () => {
   const handleTaskSubmit = async () => {
     try {
       console.log('Отправка данных задачи:', taskForm);
-
       if (editingTask) {
         // Обновление существующей задачи
         await taskService.updateTask(
@@ -135,7 +140,8 @@ const TaskList = () => {
           taskForm.completed,
           taskForm.priority, 
           taskForm.dueDate,
-          taskForm.points
+          taskForm.points,
+          taskForm.isPenalty
         );
       } else {
         // Создание новой задачи
@@ -145,7 +151,8 @@ const TaskList = () => {
           taskForm.description, 
           taskForm.priority, 
           taskForm.dueDate,
-          taskForm.points
+          taskForm.points,
+          taskForm.isPenalty
         );
       }
 
@@ -197,6 +204,15 @@ const TaskList = () => {
         return 'success';
       default:
         return 'default';
+    }
+  };
+
+  const handleCreatePenalty = async () => {
+    try {
+      await taskService.createPenalty(id, { taskType, pointsDeducted });
+      console.log('Штраф создан успешно');
+    } catch (error) {
+      console.error('Ошибка при создании штрафа:', error);
     }
   };
 
@@ -309,11 +325,6 @@ const TaskList = () => {
                       </Typography>
                     )}
                     <Box display="flex" gap={1} mt={1}>
-                      <Chip
-                        label={task.priority}
-                        color={getPriorityColor(task.priority)}
-                        size="small"
-                      />
                       {task.dueDate && (
                         <Chip
                           label={new Date(task.dueDate).toLocaleDateString()}
@@ -325,6 +336,13 @@ const TaskList = () => {
                         <Chip
                           label={`${task.points} баллов`}
                           color="primary"
+                          size="small"
+                        />
+                      )}
+                      {task.isPenalty && (
+                        <Chip
+                          label="Штраф"
+                          color="error"
                           size="small"
                         />
                       )}
@@ -380,15 +398,14 @@ const TaskList = () => {
               rows={3}
             />
             <FormControl fullWidth margin="normal">
-              <InputLabel>Приоритет</InputLabel>
+              <InputLabel>Тип задачи</InputLabel>
               <Select
-                value={taskForm.priority}
-                onChange={(e) => setTaskForm({ ...taskForm, priority: e.target.value })}
-                label="Приоритет"
+                value={taskForm.isPenalty ? 'penalty' : 'regular'}
+                onChange={(e) => setTaskForm({ ...taskForm, isPenalty: e.target.value === 'penalty' })}
+                label="Тип задачи"
               >
-                <MenuItem value="low">Низкий</MenuItem>
-                <MenuItem value="medium">Средний</MenuItem>
-                <MenuItem value="high">Высокий</MenuItem>
+                <MenuItem value="regular">Обычная задача</MenuItem>
+                <MenuItem value="penalty">Штраф</MenuItem>
               </Select>
             </FormControl>
             <TextField

@@ -10,4 +10,5 @@ public class ToDoTask
     public DateTime? DueDate { get; set; }
     public long ToDoTaskListId { get; set; }
     public int Points { get; set; } = 0;
+    public bool IsPenalty { get; set; } = true;
 }

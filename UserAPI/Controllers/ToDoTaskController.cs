@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserAPI.Services;
@@ -103,7 +104,8 @@ namespace UserAPI.Controllers
                 return NotFound();
             }
 
-            var task = await _taskService.CreateTaskAsync(taskListId, request.Title, request.Description, request.Priority, request.DueDate, request.Points);
+            Console.WriteLine(JsonSerializer.Serialize(request));
+            var task = await _taskService.CreateTaskAsync(taskListId, request.Title, request.Description, request.Priority, request.DueDate, request.Points, request.IsPenalty);
             return CreatedAtAction(nameof(GetTaskList), new { taskListId }, task);
         }
 
@@ -124,7 +126,8 @@ namespace UserAPI.Controllers
                 request.Description,
                 request.Priority,
                 request.DueDate,
-                request.Points);
+                request.Points,
+                request.IsPenalty);
             return task != null ? Ok(task) : NotFound();
         }
 
@@ -182,6 +185,10 @@ namespace UserAPI.Controllers
                     new { Date = "2023-10-03", Points = 20 },
                     new { Date = "2023-10-04", Points = 15 },
                     new { Date = "2023-10-05", Points = 12 }
+                },
+                Penalties = new[] {
+                    new { TaskType = "Late Submission", PointsDeducted = 5 },
+                    new { TaskType = "Incomplete Task", PointsDeducted = 3 }
                 }
             };
             return Ok(analyticsData);
@@ -211,6 +218,7 @@ namespace UserAPI.Controllers
         public string Priority { get; set; }
         public DateTime? DueDate { get; set; }
         public int Points { get; set; }
+        public bool IsPenalty { get; set; }
     }
 
     public class UpdateTaskRequest
@@ -220,5 +228,6 @@ namespace UserAPI.Controllers
         public string Priority { get; set; }
         public DateTime? DueDate { get; set; }
         public int Points { get; set; }
+        public bool IsPenalty { get; set; }
     }
 } 

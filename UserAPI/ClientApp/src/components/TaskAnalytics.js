@@ -200,6 +200,26 @@ const TaskAnalytics = () => {
             <Line data={chartData} options={chartOptions} />
           </Paper>
         </Grid>
+
+        <Grid item xs={12}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Штрафы
+              </Typography>
+              {analyticsData?.Penalties?.map((penalty, index) => (
+                <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {penalty.TaskType}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    -{penalty.PointsDeducted} очков
+                  </Typography>
+                </Box>
+              ))}
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
     </Box>
   );

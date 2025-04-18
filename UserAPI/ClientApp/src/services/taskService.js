@@ -125,14 +125,15 @@ class TaskService {
         }
     }
 
-    async createTask(taskListId, title, description, priority, dueDate, points) {
+    async createTask(taskListId, title, description, priority, dueDate, points, isPenalty) {
         try {
             const response = await api.post(`/todotask/lists/${taskListId}/tasks`, {
                 title,
                 description,
                 priority,
                 dueDate,
-                points
+                points,
+                isPenalty
             });
             return response.data;
         } catch (error) {
@@ -141,7 +142,7 @@ class TaskService {
         }
     }
 
-    async updateTask(taskListId, taskId, title, description, completed, priority, dueDate, points) {
+    async updateTask(taskListId, taskId, title, description, completed, priority, dueDate, points, isPenalty) {
         try {
             const response = await api.put(`/todotask/lists/${taskListId}/tasks/${taskId}`, {
                 title,
@@ -149,7 +150,8 @@ class TaskService {
                 completed,
                 priority,
                 dueDate,
-                points
+                points,
+                isPenalty
             });
             return response.data;
         } catch (error) {

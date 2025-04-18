@@ -30,7 +30,8 @@ const EditTask = () => {
     completed: false,
     priority: 'medium',
     dueDate: '',
-    points: 0
+    points: 0,
+    isPenalty: false
   });
 
   useEffect(() => {
@@ -45,7 +46,8 @@ const EditTask = () => {
             completed: task.completed,
             priority: task.priority,
             dueDate: task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 16) : '',
-            points: task.points
+            points: task.points,
+            isPenalty: task.isPenalty
           });
         }
         setLoading(false);
@@ -70,7 +72,8 @@ const EditTask = () => {
         formData.completed,
         formData.priority,
         formData.dueDate ? new Date(formData.dueDate).toISOString() : null,
-        formData.points
+        formData.points,
+        formData.isPenalty
       );
       navigate(`/task/${listId}`);
     } catch (error) {

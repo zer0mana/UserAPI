@@ -25,7 +25,8 @@ const CreateTask = () => {
     description: '',
     priority: 'medium',
     dueDate: '',
-    points: 0
+    points: 0,
+    isPenalty: false
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -50,7 +51,8 @@ const CreateTask = () => {
         description: formData.description,
         priority: formData.priority,
         dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : null,
-        points: parseInt(formData.points)
+        points: parseInt(formData.points),
+        isPenalty: formData.isPenalty
       });
 
       // Перенаправляем на страницу списка задач
