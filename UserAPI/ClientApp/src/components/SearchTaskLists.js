@@ -16,7 +16,8 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  Grid
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -75,7 +76,7 @@ const SearchTaskLists = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', mt: 4, p: 2 }}>
+    <Box sx={{ maxWidth: 900, mx: 'auto', mt: 4, p: 2 }}>
       <Typography variant="h4" component="h1" gutterBottom>
         Поиск списков задач
       </Typography>
@@ -121,7 +122,7 @@ const SearchTaskLists = () => {
         </Box>
       )}
 
-      <List>
+      <Grid container spacing={3}>
         {taskLists.map((list) => {
             let imageSrc = null;
             if (list.imageData && list.imageMimeType) { 
@@ -132,52 +133,63 @@ const SearchTaskLists = () => {
             }
 
             return (
-                <Paper sx={{ mb: 2, overflow: 'hidden' }} key={list.id}>
-                    {imageSrc && (
-                        <Box
-                            component="img"
-                            src={imageSrc}
-                            alt={list.title}
-                            sx={{ width: '100%', height: 140, objectFit: 'cover' }}
-                        />
-                    )}
-                    <ListItem sx={{ pt: imageSrc ? 1 : 2 }}>
-                        <ListItemText
-                            primary={list.title}
-                            secondary={
-                            <Box>
-                                {list.description && (
-                                <Typography variant="body2" color="text.secondary">
-                                    {list.description}
-                                </Typography>
-                                )}
-                                <Box display="flex" gap={1} mt={1}>
-                                <Typography variant="body2" color="text.secondary">
-                                    Задач: {list.taskCount || 0}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    Очки: {list.totalPoints || 0} / {list.requiredPoints || 0}
-                                </Typography>
+                <Grid item xs={12} md={6} lg={4} key={list.id}>
+                    <Paper sx={{ mb: 0, overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        {imageSrc && (
+                            <Box
+                                component="img"
+                                src={imageSrc}
+                                alt={list.title}
+                                sx={{ width: '100%', height: 140, objectFit: 'cover', flexShrink: 0 }}
+                            />
+                        )}
+                        <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                            <ListItemText
+                                sx={{ mb: 1 }}
+                                primary={list.title}
+                                secondary={
+                                <Box>
+                                    <Typography 
+                                        variant="body2" 
+                                        color="text.secondary"
+                                        sx={{ 
+                                            whiteSpace: 'nowrap', 
+                                            overflow: 'hidden', 
+                                            textOverflow: 'ellipsis',
+                                            display: 'block',
+                                            mb: 1
+                                        }}
+                                        title={list.description || ''}
+                                    >
+                                        {list.description || 'Без описания'}
+                                    </Typography>
+                                    <Box display="flex" gap={1} mt={1} flexWrap="wrap">
+                                        <Typography variant="body2" color="text.secondary">
+                                            Задач: {list.taskCount || 0}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            Очки: {list.totalPoints || 0} / {list.requiredPoints || 0}
+                                        </Typography>
+                                    </Box>
                                 </Box>
+                                }
+                            />
+                            <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
+                                <IconButton
+                                    aria-label="view"
+                                    onClick={() => handleViewList(list)}
+                                    size="small"
+                                >
+                                    <VisibilityIcon fontSize="small" />
+                                </IconButton>
                             </Box>
-                            }
-                        />
-                        <ListItemSecondaryAction>
-                            <IconButton
-                            edge="end"
-                            aria-label="view"
-                            onClick={() => handleViewList(list)}
-                            >
-                            <VisibilityIcon />
-                            </IconButton>
-                        </ListItemSecondaryAction>
-                    </ListItem>
-                </Paper>
+                        </Box>
+                    </Paper>
+                </Grid>
             );
         })}
-      </List>
+      </Grid>
 
-      {/* Диалог просмотра списка */}
       <Dialog open={openViewDialog} onClose={handleCloseViewDialog} maxWidth="md" fullWidth>
         <DialogTitle>
           {selectedList?.title}

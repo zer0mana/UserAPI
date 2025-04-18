@@ -123,88 +123,99 @@ const TaskLists = () => {
           }
 
           return (
-            <Grid item xs={12} key={list.id}>
+            <Grid item xs={12} md={6} lg={6} key={list.id}>
               <Paper 
                 elevation={2} 
                 sx={{ 
                   overflow: 'hidden', 
                   p: 2, 
-                  cursor: 'pointer',
-                  '&:hover': { boxShadow: 4 }
+                  cursor: 'pointer', 
+                  '&:hover': { boxShadow: 4 },
+                  display: 'flex', 
+                  flexDirection: 'column' 
                 }}
                 onClick={() => navigate(`/task-list/${list.id}`)}
               >
-                {/* Отображение изображения */}
                 {imageSrc && (
-                  <Box
-                    component="img"
-                    src={imageSrc}
+                  <Box 
+                    component="img" 
+                    src={imageSrc} 
                     alt={list.title}
-                    sx={{
+                    sx={{ 
                       width: '100%', 
                       height: '200px',
                       objectFit: 'cover', 
                       display: 'block', 
-                      mb: 2 
+                      mb: 2, 
+                      flexShrink: 0
                     }}
                   />
                 )}
-                <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                  <Box>
-                    <Typography variant="h5" component="h2" sx={{ fontWeight: 'medium', mb: 1 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flexGrow: 1, overflow: 'hidden' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                    <Typography variant="h5" component="h2" sx={{ fontWeight: 'medium', mr: 2 }}>
                       {list.title}
                     </Typography>
-                    <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                      {list.description || 'Без описания'}
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
-                      <Typography variant="body2" color="text.secondary">
-                        Задач: {list.taskCount || 0}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Очки: {list.totalPoints || 0} / {list.requiredPoints || 0}
-                      </Typography>
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <Tooltip title="Дней подряд">
-                          <Box display="flex" alignItems="center">
-                            <LocalFireDepartmentIcon sx={{ 
-                              color: list.streak > 100 ? 'purple' : list.streak > 0 ? 'orange' : 'grey.400',
-                              mr: 0.5 
-                            }} />
-                            <Typography variant="body2" color={list.streak > 0 ? 'text.secondary' : 'text.disabled'}>
-                              {list.streak || 0} дней
-                            </Typography>
-                          </Box>
-                        </Tooltip>
-                      </Box>
-                      {list.isCompleted && (
-                        <Chip 
-                          label="Выполнено" 
-                          color="success" 
-                          size="small"
-                        />
-                      )}
+                    <Box onClick={(e) => e.stopPropagation()}>
+                      <IconButton 
+                        aria-label="edit" 
+                        component={Link}
+                        to={`/edit-task-list/${list.id}`}
+                        size="small"
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton 
+                        aria-label="delete" 
+                        onClick={() => handleDelete(list.id)}
+                        size="small"
+                      >
+                        <DeleteIcon fontSize="small"/>
+                      </IconButton>
                     </Box>
                   </Box>
-                  <Box 
-                    sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }} 
-                    onClick={(e) => e.stopPropagation()}
+                  <Typography 
+                    variant="body1" 
+                    color="text.secondary" 
+                    sx={{
+                        mb: 2, 
+                        whiteSpace: 'nowrap', 
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: 'block'
+                    }}
+                    title={list.description || ''} 
                   >
-                    <IconButton 
-                      aria-label="edit" 
-                      component={Link}
-                      to={`/edit-task-list/${list.id}`}
-                      size="small"
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton 
-                      aria-label="delete" 
-                      onClick={() => handleDelete(list.id)}
-                      size="small"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
+                    {list.description || 'Без описания'}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Задач: {list.taskCount || 0}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Очки: {list.totalPoints || 0} / {list.requiredPoints || 0}
+                    </Typography>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Tooltip title="Дней подряд">
+                        <Box display="flex" alignItems="center">
+                          <LocalFireDepartmentIcon sx={{ 
+                            color: list.streak > 100 ? 'purple' : list.streak > 0 ? 'orange' : 'grey.400',
+                            mr: 0.5 
+                          }} />
+                          <Typography variant="body2" color={list.streak > 0 ? 'text.secondary' : 'text.disabled'}>
+                            {list.streak || 0} дней
+                          </Typography>
+                        </Box>
+                      </Tooltip>
+                    </Box>
+                    {list.isCompleted && (
+                      <Chip 
+                        label="Выполнено" 
+                        color="success" 
+                        size="small"
+                        sx={{ marginLeft: 'auto' }}
+                      />
+                    )}
                   </Box>
                 </Box>
               </Paper>
