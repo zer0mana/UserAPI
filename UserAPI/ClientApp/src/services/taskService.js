@@ -72,13 +72,13 @@ class TaskService {
         }
     }
 
-    async createTaskList(title, description, requiredPoints) {
+    async createTaskList(formData) {
         try {
-            console.log('Creating task list with:', { title, description, requiredPoints });
-            const response = await api.post('/todotask/lists', {
-                title,
-                description,
-                requiredPoints
+            console.log('Creating task list with FormData...');
+            const response = await api.post('/todotask/lists', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
             });
             console.log('Task list created:', response.data);
             return response.data;
@@ -92,16 +92,21 @@ class TaskService {
         }
     }
 
-    async updateTaskList(taskListId, title, description, requiredPoints) {
+    async updateTaskList(taskListId, formData) {
         try {
-            const response = await api.put(`/todotask/lists/${taskListId}`, {
-                title,
-                description,
-                requiredPoints
+            console.log(`Updating task list ${taskListId} with FormData...`);
+            const response = await api.put(`/todotask/lists/${taskListId}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
             });
             return response.data;
         } catch (error) {
             console.error(`Error updating task list ${taskListId}:`, error);
+            if (error.response) {
+                console.error('Response data:', error.response.data);
+                console.error('Response status:', error.response.status);
+            }
             throw error;
         }
     }

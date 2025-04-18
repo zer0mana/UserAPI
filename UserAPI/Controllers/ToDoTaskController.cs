@@ -2,6 +2,9 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserAPI.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
 
 namespace UserAPI.Controllers
 {
@@ -11,10 +14,12 @@ namespace UserAPI.Controllers
     public class ToDoTaskController : ControllerBase
     {
         private readonly IToDoTaskService _taskService;
+        private readonly IWebHostEnvironment _environment;
 
-        public ToDoTaskController(IToDoTaskService taskService)
+        public ToDoTaskController(IToDoTaskService taskService, IWebHostEnvironment environment)
         {
             _taskService = taskService;
+            _environment = environment;
         }
 
         [HttpGet("lists")]
@@ -59,15 +64,38 @@ namespace UserAPI.Controllers
         }
 
         [HttpPost("lists")]
-        public async Task<IActionResult> CreateTaskList([FromBody] CreateTaskListRequest request)
+        public async Task<IActionResult> CreateTaskList([FromForm] CreateTaskListRequest request)
         {
             var userId = long.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
-            var taskList = await _taskService.CreateTaskListAsync(userId, request.Title, request.Description, request.RequiredPoints);
+            byte[]? imageData = null;
+            string? imageMimeType = null; // Переменная для mime type
+
+            if (request.ImageFile != null && request.ImageFile.Length > 0)
+            {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                var extension = Path.GetExtension(request.ImageFile.FileName).ToLowerInvariant();
+                imageMimeType = request.ImageFile.ContentType; // Получаем mime type
+
+                // Проверка на поддерживаемый mime type (опционально, но рекомендуется)
+                if (!imageMimeType.StartsWith("image/"))
+                {
+                     return BadRequest("Недопустимый тип файла изображения.");
+                }
+                // Можно добавить более строгую проверку mime type, если нужно
+
+                using (var memoryStream = new MemoryStream())
+                {
+                    await request.ImageFile.CopyToAsync(memoryStream);
+                    imageData = memoryStream.ToArray();
+                }
+            }
+
+            var taskList = await _taskService.CreateTaskListAsync(userId, request.Title, request.Description, request.RequiredPoints, imageData, imageMimeType);
             return CreatedAtAction(nameof(GetTaskList), new { taskListId = taskList.Id }, taskList);
         }
 
         [HttpPut("lists/{taskListId}")]
-        public async Task<IActionResult> UpdateTaskList(long taskListId, [FromBody] UpdateTaskListRequest request)
+        public async Task<IActionResult> UpdateTaskList(long taskListId, [FromForm] UpdateTaskListRequest request)
         {
             var userId = long.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
             var taskList = await _taskService.GetTaskListAsync(taskListId, 0);
@@ -76,7 +104,25 @@ namespace UserAPI.Controllers
                 return NotFound();
             }
 
-            var updatedTaskList = await _taskService.UpdateTaskListAsync(taskListId, request.Title, request.Description, request.RequiredPoints);
+            byte[]? imageData = taskList.ImageData; 
+            string? imageMimeType = taskList.ImageMimeType; // Сохраняем старый mime type
+
+            if (request.ImageFile != null && request.ImageFile.Length > 0)
+            {
+                imageMimeType = request.ImageFile.ContentType; // Получаем новый mime type
+                if (!imageMimeType.StartsWith("image/"))
+                {
+                     return BadRequest("Недопустимый тип файла изображения.");
+                }
+
+                using (var memoryStream = new MemoryStream())
+                {
+                    await request.ImageFile.CopyToAsync(memoryStream);
+                    imageData = memoryStream.ToArray(); // Обновляем данные
+                }
+            }
+
+            var updatedTaskList = await _taskService.UpdateTaskListAsync(taskListId, request.Title, request.Description, request.RequiredPoints, imageData, imageMimeType);
             return Ok(updatedTaskList);
         }
 
@@ -194,11 +240,11 @@ namespace UserAPI.Controllers
                     new { Date = "2023-10-05", Points = 2 }
                 },
                 DailyTasksCompleted = new[] {
-                    new { Date = "2025-10-01", Count = 3 },
-                    new { Date = "2024-10-02", Count = 5 },
-                    new { Date = "2025-10-03", Count = 4 },
-                    new { Date = "2024-10-04", Count = 6 },
-                    new { Date = "2025-10-05", Count = 2 }
+                    new { Date = "2023-10-01", Count = 3 },
+                    new { Date = "2023-10-02", Count = 5 },
+                    new { Date = "2025-02-03", Count = 4 },
+                    new { Date = "2023-10-04", Count = 6 },
+                    new { Date = "2023-10-05", Count = 2 }
                 }
             };
             return Ok(analyticsData);
@@ -211,6 +257,7 @@ namespace UserAPI.Controllers
         public string? Description { get; set; }
         
         public int RequiredPoints { get; set; }
+        public IFormFile? ImageFile { get; set; }
     }
 
     public class UpdateTaskListRequest
@@ -219,6 +266,7 @@ namespace UserAPI.Controllers
         public string? Description { get; set; }
         
         public int RequiredPoints { get; set; }
+        public IFormFile? ImageFile { get; set; }
     }
 
     public class CreateTaskRequest

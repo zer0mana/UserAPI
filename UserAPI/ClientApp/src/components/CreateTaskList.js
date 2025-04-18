@@ -5,7 +5,8 @@ import {
     TextField,
     Button,
     Typography,
-    Paper
+    Paper,
+    Input
 } from '@mui/material';
 import taskService from '../services/taskService';
 
@@ -13,13 +14,29 @@ const CreateTaskList = () => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [requiredPoints, setRequiredPoints] = useState(0);
+    const [imageFile, setImageFile] = useState(null);
     const navigate = useNavigate();
+
+    const handleFileChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            setImageFile(e.target.files[0]);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             console.log('Создание списка задач с очками:', requiredPoints);
-            await taskService.createTaskList(title, description, requiredPoints);
+            
+            const formData = new FormData();
+            formData.append('Title', title);
+            formData.append('Description', description);
+            formData.append('RequiredPoints', requiredPoints.toString());
+            if (imageFile) {
+                formData.append('ImageFile', imageFile);
+            }
+
+            await taskService.createTaskList(formData);
             navigate('/');
         } catch (error) {
             console.error('Ошибка при создании списка задач:', error);
@@ -28,28 +45,33 @@ const CreateTaskList = () => {
     };
 
     return (
-        <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, p: 2 }}>
-            <Paper elevation={3} sx={{ p: 3 }}>
-                <Typography variant="h5" component="h1" gutterBottom>
+        <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, p: 3 }}>
+            <Paper elevation={3} sx={{ p: 4 }}>
+                <Typography variant="h4" component="h1" gutterBottom>
                     Создать новый список задач
                 </Typography>
-                <form onSubmit={handleSubmit}>
+                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                     <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="title"
                         label="Название"
+                        name="title"
+                        autoFocus
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        fullWidth
-                        required
-                        margin="normal"
                     />
                     <TextField
-                        label="Описание"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
+                        margin="normal"
                         fullWidth
+                        id="description"
+                        label="Описание (необязательно)"
+                        name="description"
                         multiline
                         rows={4}
-                        margin="normal"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
                     />
                     <Box sx={{ 
                         mt: 2, 
@@ -83,22 +105,28 @@ const CreateTaskList = () => {
                             }}
                         />
                     </Box>
-                    <Box sx={{ mt: 3, display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-                        <Button
-                            variant="outlined"
-                            onClick={() => navigate('/')}
-                        >
-                            Отмена
-                        </Button>
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            color="primary"
-                        >
-                            Создать
-                        </Button>
+                    
+                    <Box sx={{ mt: 2 }}>
+                        <Typography variant="subtitle1" gutterBottom>
+                            Изображение (необязательно)
+                        </Typography>
+                        <Input
+                            type="file"
+                            onChange={handleFileChange}
+                            fullWidth
+                            inputProps={{ accept: "image/jpeg, image/png, image/gif" }}
+                        />
                     </Box>
-                </form>
+
+                    <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        sx={{ mt: 3, mb: 2 }}
+                    >
+                        Создать список
+                    </Button>
+                </Box>
             </Paper>
         </Box>
     );

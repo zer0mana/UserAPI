@@ -7,8 +7,8 @@ public interface IToDoTaskService
     Task<List<ToDoList>> GetTaskListsAsync(long userId);
     Task<ToDoList?> GetTaskListAsync(long taskListId, int userDayNumber);
     Task<List<ToDoList>> GetRecommendedTaskListsAsync(long userId);
-    Task<ToDoList> CreateTaskListAsync(long userId, string title, string? description, int requiredPoints);
-    Task<ToDoList> UpdateTaskListAsync(long taskListId, string title, string? description, int requiredPoints);
+    Task<ToDoList> CreateTaskListAsync(long userId, string title, string? description, int requiredPoints, byte[]? imageData, string? imageMimeType);
+    Task<ToDoList> UpdateTaskListAsync(long taskListId, string title, string? description, int requiredPoints, byte[]? imageData, string? imageMimeType);
     Task<bool> DeleteTaskListAsync(long taskListId);
     Task<bool> MarkTaskCompletedAsync(long taskListId, long taskId);
     Task<ToDoTask> CreateTaskAsync(long taskListId, string title, string? description, string priority, DateTime? dueDate, int points, bool isPenalty);
@@ -59,7 +59,7 @@ public class ToDoTaskService : IToDoTaskService
         return Task.FromResult(recommendedTaskLists);
     }
 
-    public Task<ToDoList> CreateTaskListAsync(long userId, string title, string? description, int requiredPoints)
+    public Task<ToDoList> CreateTaskListAsync(long userId, string title, string? description, int requiredPoints, byte[]? imageData, string? imageMimeType)
     {
         var taskList = new ToDoList
         {
@@ -68,14 +68,16 @@ public class ToDoTaskService : IToDoTaskService
             Description = description,
             CreatedAt = DateTime.UtcNow,
             UserId = userId,
-            RequiredPoints = requiredPoints
+            RequiredPoints = requiredPoints,
+            ImageData = imageData,
+            ImageMimeType = imageMimeType
         };
         _taskLists.Add(taskList);
         Console.WriteLine("create task list");
         return Task.FromResult(taskList);
     }
 
-    public Task<ToDoList> UpdateTaskListAsync(long taskListId, string title, string? description, int requiredPoints)
+    public Task<ToDoList> UpdateTaskListAsync(long taskListId, string title, string? description, int requiredPoints, byte[]? imageData, string? imageMimeType)
     {
         var taskList = _taskLists.FirstOrDefault(tl => tl.Id == taskListId);
         if (taskList == null)
@@ -86,6 +88,9 @@ public class ToDoTaskService : IToDoTaskService
         taskList.Title = title;
         taskList.Description = description;
         taskList.RequiredPoints = requiredPoints;
+        taskList.ImageData = imageData;
+        taskList.ImageMimeType = imageMimeType;
+
         return Task.FromResult(taskList);
     }
     

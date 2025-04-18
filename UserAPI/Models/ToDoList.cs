@@ -13,4 +13,6 @@ public class ToDoList
     public int TotalPoints => ToDoTasks.Where(t => t.Completed).Sum(t => t.Points);
     public bool IsCompleted => TotalPoints >= RequiredPoints;
     public int Streak { get; set; } = 101;
+    public byte[]? ImageData { get; set; }
+    public string? ImageMimeType { get; set; }
 }

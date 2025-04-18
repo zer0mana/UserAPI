@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   Typography, 
   Box, 
@@ -33,22 +34,22 @@ const RecommendedTaskLists = () => {
     title: '',
     description: ''
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchRecommendedLists();
+    const fetchRecommended = async () => {
+      try {
+        const response = await taskService.getRecommendedTaskLists();
+        setTaskLists(response || []);
+        setLoading(false);
+      } catch (err) {
+        console.error('Ошибка при загрузке рекомендуемых списков:', err);
+        setError('Не удалось загрузить рекомендуемые списки.');
+        setLoading(false);
+      }
+    };
+    fetchRecommended();
   }, []);
-
-  const fetchRecommendedLists = async () => {
-    try {
-      const response = await taskService.getRecommendedTaskLists();
-      setTaskLists(response);
-      setLoading(false);
-    } catch (err) {
-      console.error('Ошибка при загрузке рекомендуемых списков:', err);
-      setError('Не удалось загрузить рекомендуемые списки. Пожалуйста, попробуйте позже.');
-      setLoading(false);
-    }
-  };
 
   const handleViewList = (list) => {
     setSelectedList(list);
@@ -79,14 +80,23 @@ const RecommendedTaskLists = () => {
   };
 
   const handleCopyList = async () => {
+    if (!selectedList) return;
     try {
-      await taskService.subscribeToTaskList(selectedList.id);
+      // Создаем FormData, даже если изображения нет (бэкенд обработает)
+      const formData = new FormData();
+      formData.append('Title', selectedList.title + ' (Копия)');
+      formData.append('Description', selectedList.description || '');
+      formData.append('RequiredPoints', selectedList.requiredPoints?.toString() || '0');
+      // Изображение копировать не будем в этой версии, пользователь может добавить сам
+      // Если нужно копировать, потребуется получить imageData и mimeType
+      
+      await taskService.createTaskList(formData); 
       handleCloseCopyDialog();
-      // Обновляем список рекомендаций
-      fetchRecommendedLists();
-    } catch (err) {
-      console.error('Ошибка при подписке на список:', err);
-      setError('Не удалось подписаться на список. Пожалуйста, попробуйте позже.');
+      navigate('/'); // Переходим к списку пользователя
+    } catch (error) {
+      console.error('Ошибка при копировании списка задач:', error);
+      alert('Не удалось скопировать список задач');
+      handleCloseCopyDialog();
     }
   };
 
@@ -111,52 +121,71 @@ const RecommendedTaskLists = () => {
       )}
 
       <List>
-        {taskLists.map((list) => (
-          <React.Fragment key={list.id}>
-            <ListItem>
-              <ListItemText
-                primary={list.title}
-                secondary={
-                  <Box>
-                    {list.description && (
-                      <Typography variant="body2" color="text.secondary">
-                        {list.description}
-                      </Typography>
-                    )}
-                    <Box display="flex" gap={1} mt={1}>
-                      <Typography variant="body2" color="text.secondary">
-                        Задач: {list.taskCount}
-                      </Typography>
-                      {list.totalPoints > 0 && (
-                        <Typography variant="body2" color="text.secondary">
-                          Всего баллов: {list.totalPoints}
-                        </Typography>
-                      )}
-                    </Box>
-                  </Box>
-                }
-              />
-              <ListItemSecondaryAction>
-                <IconButton
-                  edge="end"
-                  aria-label="view"
-                  onClick={() => handleViewList(list)}
-                  sx={{ mr: 1 }}
-                >
-                  <VisibilityIcon />
-                </IconButton>
-                <IconButton
-                  edge="end"
-                  aria-label="copy"
-                  onClick={() => handleOpenCopyDialog(list)}
-                >
-                  <AddIcon />
-                </IconButton>
-              </ListItemSecondaryAction>
-            </ListItem>
-            <Divider />
-          </React.Fragment>
-        ))}
+        {taskLists.map((list) => {
+          let imageSrc = null;
+          if (list.imageData && list.imageMimeType) { 
+            imageSrc = `data:${list.imageMimeType};base64,${list.imageData}`; 
+          } else if (list.imageData) { // Fallback
+            imageSrc = `data:image/jpeg;base64,${list.imageData}`; 
+            console.warn(`Mime type missing for recommended list ${list.id}. Falling back to jpeg.`);
+          }
+          
+          return (
+            <React.Fragment key={list.id}>
+              <Paper elevation={1} sx={{ mb: 2, overflow: 'hidden' }}>
+                {imageSrc && (
+                  <Box
+                    component="img"
+                    src={imageSrc}
+                    alt={list.title}
+                    sx={{ width: '100%', height: 140, objectFit: 'cover' }}
+                  />
+                )}
+                <ListItem sx={{ pt: imageSrc ? 1 : 2 }}>
+                  <ListItemText
+                    primary={list.title}
+                    secondary={
+                      <Box>
+                        {list.description && (
+                          <Typography variant="body2" color="text.secondary">
+                            {list.description}
+                          </Typography>
+                        )}
+                        <Box display="flex" gap={1} mt={1}>
+                          <Typography variant="body2" color="text.secondary">
+                            Задач: {list.taskCount || 0}
+                          </Typography>
+                          {list.totalPoints > 0 && (
+                            <Typography variant="body2" color="text.secondary">
+                              Всего баллов: {list.requiredPoints || 0}
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
+                    }
+                  />
+                  <ListItemSecondaryAction>
+                    <IconButton
+                      edge="end"
+                      aria-label="view"
+                      onClick={() => handleViewList(list)}
+                      sx={{ mr: 1 }}
+                    >
+                      <VisibilityIcon />
+                    </IconButton>
+                    <IconButton
+                      edge="end"
+                      aria-label="copy"
+                      onClick={() => handleOpenCopyDialog(list)}
+                    >
+                      <AddIcon />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+              </Paper>
+            </React.Fragment>
+          );
+        })}
       </List>
 
       {/* Диалог просмотра списка */}
@@ -213,23 +242,16 @@ const RecommendedTaskLists = () => {
 
       {/* Диалог копирования списка */}
       <Dialog open={openCopyDialog} onClose={handleCloseCopyDialog}>
-        <DialogTitle>
-          Подписаться на список
-        </DialogTitle>
+        <DialogTitle>Копировать список</DialogTitle>
         <DialogContent>
-          <Typography variant="body1" paragraph>
-            Вы уверены, что хотите подписаться на список "{selectedList?.title}"?
+          <Typography>
+            Вы уверены, что хотите скопировать список "{selectedList?.title}" в свои списки дел?
           </Typography>
-          {selectedList?.description && (
-            <Typography variant="body2" color="text.secondary" paragraph>
-              {selectedList.description}
-            </Typography>
-          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseCopyDialog}>Отмена</Button>
           <Button onClick={handleCopyList} variant="contained" color="primary">
-            Подписаться
+            Копировать
           </Button>
         </DialogActions>
       </Dialog>

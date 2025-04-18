@@ -245,7 +245,7 @@ const TaskList = () => {
                   fontSize: '1.2rem'
                 }} />
                 <Typography variant="body2" color={streak > 0 ? 'text.secondary' : 'text.disabled'}>
-                  {streak || 0}
+                  {streak || 0} дней
                 </Typography>
               </Box>
             </Box>
