@@ -21,6 +21,7 @@ import {
   Legend
 } from 'chart.js';
 import taskService from '../services/taskService';
+import TaskHeatmap from './TaskHeatmap';
 
 // Регистрируем компоненты Chart.js
 ChartJS.register(
@@ -200,6 +201,12 @@ const TaskAnalytics = () => {
               </Box>
             </CardContent>
           </Card>
+        </Grid>
+
+        <Grid item xs={12}>
+          <Paper sx={{ p: 3 }}>
+            <TaskHeatmap data={analyticsData?.dailyTasksCompleted?.map(item => ({ date: item.date, count: item.count })) || []} />
+          </Paper>
         </Grid>
 
         <Grid item xs={12}>

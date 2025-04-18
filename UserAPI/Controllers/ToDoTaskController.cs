@@ -192,6 +192,13 @@ namespace UserAPI.Controllers
                     new { Date = "2023-10-03", Points = 2 },
                     new { Date = "2023-10-04", Points = 5 },
                     new { Date = "2023-10-05", Points = 2 }
+                },
+                DailyTasksCompleted = new[] {
+                    new { Date = "2025-10-01", Count = 3 },
+                    new { Date = "2024-10-02", Count = 5 },
+                    new { Date = "2025-10-03", Count = 4 },
+                    new { Date = "2024-10-04", Count = 6 },
+                    new { Date = "2025-10-05", Count = 2 }
                 }
             };
             return Ok(analyticsData);
