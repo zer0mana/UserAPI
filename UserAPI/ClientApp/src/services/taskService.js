@@ -213,7 +213,7 @@ class TaskService {
 
     async getTaskAnalytics() {
         try {
-            const response = await api.get('/todotask/analytics');
+            const response = await api.get('/todotask/lists/analytics');
             console.log('Ответ от сервера при получении аналитики:', response.data);
             return response.data;
         } catch (error) {

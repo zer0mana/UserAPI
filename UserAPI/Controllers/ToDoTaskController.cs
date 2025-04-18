@@ -163,6 +163,29 @@ namespace UserAPI.Controllers
             Console.WriteLine($"Пользователь {userId} подписался на список дел {taskListId}");
             return Ok();
         }
+        
+        [HttpGet("lists/analytics")]
+        public async Task<IActionResult> GetTaskAnalytics()
+        {
+            // Здесь мы возвращаем фиктивные данные для аналитики
+            var analyticsData = new {
+                TotalPoints = 100,
+                AveragePointsPerDay = 10,
+                MaxPointsPerDay = 50,
+                TotalTasks = 100,
+                CompletedTasks = 75,
+                PendingTasks = 25,
+                OverdueTasks = 5,
+                DailyPoints = new[] {
+                    new { Date = "2023-10-01", Points = 10 },
+                    new { Date = "2023-10-02", Points = 15 },
+                    new { Date = "2023-10-03", Points = 20 },
+                    new { Date = "2023-10-04", Points = 15 },
+                    new { Date = "2023-10-05", Points = 12 }
+                }
+            };
+            return Ok(analyticsData);
+        }
     }
 
     public class CreateTaskListRequest

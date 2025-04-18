@@ -157,6 +157,40 @@ const TaskAnalytics = () => {
                   </Typography>
                 </Box>
               </Box>
+              <Box sx={{ display: 'flex', gap: 4, mb: 3 }}>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">
+                    Всего задач
+                  </Typography>
+                  <Typography variant="h4">
+                    {analyticsData?.totalTasks || 0}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">
+                    Выполненные задачи
+                  </Typography>
+                  <Typography variant="h4">
+                    {analyticsData?.completedTasks || 0}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">
+                    Ожидающие задачи
+                  </Typography>
+                  <Typography variant="h4">
+                    {analyticsData?.pendingTasks || 0}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">
+                    Просроченные задачи
+                  </Typography>
+                  <Typography variant="h4">
+                    {analyticsData?.overdueTasks || 0}
+                  </Typography>
+                </Box>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
