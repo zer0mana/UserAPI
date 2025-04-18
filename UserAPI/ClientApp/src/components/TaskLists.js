@@ -118,7 +118,7 @@ const TaskLists = () => {
                               mr: 0.5 
                             }} />
                             <Typography variant="body2" color={list.streak > 0 ? 'text.secondary' : 'text.disabled'}>
-                              {list.streak || 0} дней
+                              {list.streak || 0}
                             </Typography>
                           </Box>
                         </Tooltip>
