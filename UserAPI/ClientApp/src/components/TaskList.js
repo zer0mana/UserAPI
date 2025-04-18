@@ -24,7 +24,9 @@ import {
   Alert,
   Checkbox,
   Chip,
-  Tooltip
+  Tooltip,
+  FormControlLabel,
+  Input
 } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
@@ -40,6 +42,18 @@ import axios from 'axios';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import authService from '../services/authService';
+
+// Функция для конвертации ArrayBuffer/Uint8Array в Base64 (если еще не импортирована или не определена)
+const arrayBufferToBase64 = (buffer) => {
+    if (!buffer) return null;
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+  };
 
 const TaskList = () => {
   const { id } = useParams();
@@ -66,6 +80,8 @@ const TaskList = () => {
 
   const [taskType, setTaskType] = useState('');
   const [pointsDeducted, setPointsDeducted] = useState(0);
+  const [taskImageFile, setTaskImageFile] = useState(null); // Для файла изображения задачи
+  const [taskImagePreviewUrl, setTaskImagePreviewUrl] = useState(''); // Для предпросмотра
 
   useEffect(() => {
     const fetchTaskList = async () => {
@@ -97,7 +113,26 @@ const TaskList = () => {
     fetchTaskList();
   }, [id]);
 
+  const handleTaskFileChange = (e) => {
+      if (e.target.files && e.target.files[0]) {
+          const file = e.target.files[0];
+          setTaskImageFile(file);
+          setTaskImagePreviewUrl(URL.createObjectURL(file));
+      } else {
+          setTaskImageFile(null);
+          // Если отменили выбор файла, нужно вернуть превью к исходному изображению задачи (если оно было)
+          if (editingTask && editingTask.imageData) {
+            const base64String = editingTask.imageData; // Предполагаем, что с бека уже приходит base64
+            const mimeType = editingTask.imageMimeType || 'image/jpeg';
+            setTaskImagePreviewUrl(`data:${mimeType};base64,${base64String}`);
+          } else {
+            setTaskImagePreviewUrl('');
+          }
+      }
+  };
+
   const handleOpenTaskDialog = (task = null) => {
+    setTaskImageFile(null); // Сбрасываем файл при открытии
     if (task) {
       setEditingTask(task);
       setTaskForm({
@@ -108,7 +143,16 @@ const TaskList = () => {
         points: task.points || 0,
         isPenalty: task.isPenalty || false
       });
+      // Устанавливаем превью для существующего изображения
+      if (task.imageData) {
+        const base64String = task.imageData; // Уже base64
+        const mimeType = task.imageMimeType || 'image/jpeg';
+        setTaskImagePreviewUrl(`data:${mimeType};base64,${base64String}`);
+      } else {
+        setTaskImagePreviewUrl('');
+      }
     } else {
+      // ... сброс формы для новой задачи ...
       setEditingTask(null);
       setTaskForm({
         title: '',
@@ -118,6 +162,7 @@ const TaskList = () => {
         points: 0,
         isPenalty: false
       });
+      setTaskImagePreviewUrl(''); // Сбрасываем превью
     }
     setOpenTaskDialog(true);
   };
@@ -125,35 +170,37 @@ const TaskList = () => {
   const handleCloseTaskDialog = () => {
     setOpenTaskDialog(false);
     setEditingTask(null);
+    setTaskImageFile(null); // Сбрасываем файл при закрытии
+    setTaskImagePreviewUrl(''); // Сбрасываем превью при закрытии
   };
 
   const handleTaskSubmit = async () => {
     try {
-      console.log('Отправка данных задачи:', taskForm);
+      console.log('Отправка данных задачи:', taskForm, taskImageFile);
+
+      // Создаем FormData
+      const formData = new FormData();
+      formData.append('Title', taskForm.title);
+      // Всегда добавляем описание, даже если пустое
+      formData.append('Description', taskForm.description || ''); // Отправляем пустую строку, если null/undefined
+      formData.append('Priority', taskForm.priority);
+      if (taskForm.dueDate) {
+        formData.append('DueDate', taskForm.dueDate.toISOString());
+      }
+      formData.append('Points', taskForm.points.toString());
+      formData.append('IsPenalty', taskForm.isPenalty.toString());
+      if (taskImageFile) {
+          formData.append('ImageFile', taskImageFile);
+      }
+      // При обновлении, если файл не выбран, изображение не будет отправлено,
+      // и бэкенд (по текущей логике) оставит старое.
+
       if (editingTask) {
         // Обновление существующей задачи
-        await taskService.updateTask(
-          id, 
-          editingTask.id, 
-          taskForm.title, 
-          taskForm.description, 
-          taskForm.completed,
-          taskForm.priority, 
-          taskForm.dueDate,
-          taskForm.points,
-          taskForm.isPenalty
-        );
+        await taskService.updateTask(id, editingTask.id, formData); // Отправляем formData
       } else {
         // Создание новой задачи
-        await taskService.createTask(
-          id, 
-          taskForm.title, 
-          taskForm.description, 
-          taskForm.priority, 
-          taskForm.dueDate,
-          taskForm.points,
-          taskForm.isPenalty
-        );
+        await taskService.createTask(id, formData); // Отправляем formData
       }
 
       // Обновляем список задач
@@ -165,6 +212,7 @@ const TaskList = () => {
     } catch (err) {
       console.error('Ошибка при сохранении задачи:', err);
       setError('Не удалось сохранить задачу. Пожалуйста, попробуйте позже.');
+      // Не закрываем диалог при ошибке, чтобы пользователь мог исправить
     }
   };
 
@@ -295,142 +343,190 @@ const TaskList = () => {
       )}
 
       <List>
-        {tasks.map((task) => (
-          <React.Fragment key={task.id}>
-            <ListItem>
-              <ListItemText
-                primary={
-                  <Box display="flex" alignItems="center">
-                    <Checkbox
-                      checked={task.completed}
-                      onChange={() => handleTaskCompletion(task.id)}
-                      icon={<RadioButtonUncheckedIcon />}
-                      checkedIcon={<CheckCircleIcon />}
-                    />
-                    <Typography
-                      sx={{
-                        textDecoration: task.completed ? 'line-through' : 'none',
-                        color: task.completed ? 'text.secondary' : 'text.primary'
-                      }}
-                    >
-                      {task.title}
-                    </Typography>
-                  </Box>
-                }
-                secondary={
-                  <Box>
-                    {task.description && (
-                      <Typography variant="body2" color="text.secondary">
-                        {task.description}
-                      </Typography>
-                    )}
-                    <Box display="flex" gap={1} mt={1}>
-                      {task.dueDate && (
-                        <Chip
-                          label={new Date(task.dueDate).toLocaleDateString()}
-                          variant="outlined"
-                          size="small"
-                        />
-                      )}
-                      {task.points > 0 && (
-                        <Chip
-                          label={`${task.points} баллов`}
-                          color="primary"
-                          size="small"
-                        />
-                      )}
-                      {task.isPenalty && (
-                        <Chip
-                          label="Штраф"
-                          color="error"
-                          size="small"
-                        />
-                      )}
-                    </Box>
-                  </Box>
-                }
-              />
-              {isOwner && (
-                <ListItemSecondaryAction>
-                  <IconButton
-                    edge="end"
-                    aria-label="edit"
-                    onClick={() => handleOpenTaskDialog(task)}
-                    sx={{ mr: 1 }}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    edge="end"
-                    aria-label="delete"
-                    onClick={() => handleDeleteTask(task.id)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              )}
-            </ListItem>
-            <Divider />
-          </React.Fragment>
-        ))}
+        {tasks.map((task) => {
+            // Логика для отображения изображения задачи
+            let taskImageSrc = null;
+            if (task.imageData && task.imageMimeType) {
+                taskImageSrc = `data:${task.imageMimeType};base64,${task.imageData}`;
+            } else if (task.imageData) { // Fallback
+                taskImageSrc = `data:image/jpeg;base64,${task.imageData}`;
+            }
+
+            return (
+                <React.Fragment key={task.id}>
+                    <ListItem sx={{ display: 'block', p: 0 }}>
+                        <Paper elevation={1} sx={{ p: 2, mb: 2 }}>
+                            {taskImageSrc && (
+                                <Box 
+                                    component="img"
+                                    src={taskImageSrc}
+                                    alt={task.title}
+                                    sx={{ 
+                                        width: '100%', 
+                                        height: '200px',
+                                        objectFit: 'cover', 
+                                        borderRadius: 1,
+                                        display: 'block',
+                                        mb: 2 
+                                    }}
+                                />
+                            )}
+                            
+                            <Box>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                                    <Typography 
+                                        variant="h6" 
+                                        component="div" 
+                                        sx={{ 
+                                            fontWeight: 'medium', 
+                                            textDecoration: task.completed ? 'line-through' : 'none',
+                                            color: task.completed ? 'text.secondary' : 'text.primary'
+                                        }}
+                                    >
+                                        {task.title}
+                                    </Typography>
+                                    {isOwner && (
+                                        <Box>
+                                            <IconButton
+                                                aria-label="edit"
+                                                onClick={() => handleOpenTaskDialog(task)}
+                                                size="small"
+                                            >
+                                                <EditIcon fontSize="small" />
+                                            </IconButton>
+                                            <IconButton
+                                                aria-label="delete"
+                                                onClick={() => handleDeleteTask(task.id)}
+                                                size="small"
+                                            >
+                                                <DeleteIcon fontSize="small" />
+                                            </IconButton>
+                                        </Box>
+                                    )}
+                                </Box>
+
+                                {task.description && (
+                                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                                        {task.description}
+                                    </Typography>
+                                )}
+
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}> 
+                                    <Checkbox
+                                        checked={task.completed}
+                                        onChange={() => handleTaskCompletion(task.id)}
+                                        icon={<RadioButtonUncheckedIcon />}
+                                        checkedIcon={<CheckCircleIcon />}
+                                        size="small"
+                                        sx={{ p: 0.5, mr: 1 }} 
+                                    />
+                                    <Typography variant="body2" color="text.secondary">
+                                        {task.completed ? 'Выполнено' : 'Отметить как выполненное'}
+                                    </Typography>
+                                </Box>
+
+                                <Box display="flex" gap={1} flexWrap="wrap">
+                                    {task.dueDate && (
+                                        <Chip
+                                        label={new Date(task.dueDate).toLocaleDateString()}
+                                        variant="outlined"
+                                        size="small"
+                                        />
+                                    )}
+                                    {task.points > 0 && (
+                                        <Chip
+                                        label={`${task.points} баллов`}
+                                        color="primary"
+                                        size="small"
+                                        />
+                                    )}
+                                    {task.isPenalty && (
+                                        <Chip
+                                        label="Штраф"
+                                        color="error"
+                                        size="small"
+                                        />
+                                    )}
+                                </Box>
+                            </Box>
+                        </Paper>
+                    </ListItem>
+                </React.Fragment>
+            );
+        })}
       </List>
 
       <Dialog open={openTaskDialog} onClose={handleCloseTaskDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          {editingTask ? 'Редактировать задачу' : 'Создать задачу'}
-        </DialogTitle>
+        <DialogTitle>{editingTask ? 'Редактировать задачу' : 'Создать задачу'}</DialogTitle>
         <DialogContent>
-          <Box sx={{ pt: 2 }}>
             <TextField
-              fullWidth
-              label="Название"
-              value={taskForm.title}
-              onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
-              margin="normal"
+                fullWidth
+                label="Название"
+                value={taskForm.title}
+                onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
+                margin="normal"
             />
             <TextField
-              fullWidth
-              label="Описание"
-              value={taskForm.description}
-              onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
-              margin="normal"
-              multiline
-              rows={3}
+                fullWidth
+                label="Описание"
+                value={taskForm.description}
+                onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
+                margin="normal"
+                multiline
+                rows={3}
             />
             <FormControl fullWidth margin="normal">
-              <InputLabel>Тип задачи</InputLabel>
-              <Select
-                value={taskForm.isPenalty ? 'penalty' : 'regular'}
-                onChange={(e) => setTaskForm({ ...taskForm, isPenalty: e.target.value === 'penalty' })}
-                label="Тип задачи"
-              >
-                <MenuItem value="regular">Обычная задача</MenuItem>
-                <MenuItem value="penalty">Штраф</MenuItem>
-              </Select>
+                <InputLabel>Тип задачи</InputLabel>
+                <Select
+                    value={taskForm.isPenalty ? 'penalty' : 'regular'}
+                    onChange={(e) => setTaskForm({ ...taskForm, isPenalty: e.target.value === 'penalty' })}
+                    label="Тип задачи"
+                >
+                    <MenuItem value="regular">Обычная задача</MenuItem>
+                    <MenuItem value="penalty">Штраф</MenuItem>
+                </Select>
             </FormControl>
             <TextField
-              fullWidth
-              label="Очки"
-              type="number"
-              value={taskForm.points}
-              onChange={(e) => setTaskForm({ ...taskForm, points: parseInt(e.target.value) || 0 })}
-              margin="normal"
-              inputProps={{ min: 0 }}
-              required
+                fullWidth
+                label="Очки"
+                type="number"
+                value={taskForm.points}
+                onChange={(e) => setTaskForm({ ...taskForm, points: parseInt(e.target.value) || 0 })}
+                margin="normal"
+                inputProps={{ min: 0 }}
+                required
             />
             <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
-              <DatePicker
-                label="Срок выполнения"
-                value={taskForm.dueDate}
-                onChange={(newValue) => setTaskForm({ ...taskForm, dueDate: newValue })}
-                renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
-              />
+                <DatePicker
+                    label="Срок выполнения"
+                    value={taskForm.dueDate}
+                    onChange={(newValue) => setTaskForm({ ...taskForm, dueDate: newValue })}
+                    renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+                />
             </LocalizationProvider>
-          </Box>
+
+            {/* Поле для загрузки изображения задачи */}
+            <Box sx={{ mt: 2 }}>
+                <Typography variant="subtitle1" gutterBottom>
+                    Изображение задачи (необязательно)
+                </Typography>
+                {taskImagePreviewUrl && (
+                    <Box sx={{ mb: 2, textAlign: 'center' }}>
+                        <img src={taskImagePreviewUrl} alt="Предпросмотр" style={{ maxWidth: '100%', maxHeight: '150px' }} />
+                    </Box>
+                )}
+                <Input
+                    type="file"
+                    onChange={handleTaskFileChange}
+                    fullWidth
+                    inputProps={{ accept: "image/jpeg, image/png, image/gif" }}
+                />
+            </Box>
+
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseTaskDialog}>Отмена</Button>
-          <Button onClick={handleTaskSubmit} variant="contained" color="primary">
+          <Button onClick={handleTaskSubmit} variant="contained">
             {editingTask ? 'Сохранить' : 'Создать'}
           </Button>
         </DialogActions>

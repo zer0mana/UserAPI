@@ -130,37 +130,40 @@ class TaskService {
         }
     }
 
-    async createTask(taskListId, title, description, priority, dueDate, points, isPenalty) {
+    async createTask(taskListId, formData) {
         try {
-            const response = await api.post(`/todotask/lists/${taskListId}/tasks`, {
-                title,
-                description,
-                priority,
-                dueDate,
-                points,
-                isPenalty
+            console.log(`Creating task in list ${taskListId} with FormData...`);
+            const response = await api.post(`/todotask/lists/${taskListId}/tasks`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
             });
             return response.data;
         } catch (error) {
             console.error(`Error creating task in list ${taskListId}:`, error);
+            if (error.response) {
+                console.error('Response data:', error.response.data);
+                console.error('Response status:', error.response.status);
+            }
             throw error;
         }
     }
 
-    async updateTask(taskListId, taskId, title, description, completed, priority, dueDate, points, isPenalty) {
+    async updateTask(taskListId, taskId, formData) {
         try {
-            const response = await api.put(`/todotask/lists/${taskListId}/tasks/${taskId}`, {
-                title,
-                description,
-                completed,
-                priority,
-                dueDate,
-                points,
-                isPenalty
+            console.log(`Updating task ${taskId} in list ${taskListId} with FormData...`);
+            const response = await api.put(`/todotask/lists/${taskListId}/tasks/${taskId}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
             });
             return response.data;
         } catch (error) {
             console.error(`Error updating task ${taskId} in list ${taskListId}:`, error);
+            if (error.response) {
+                console.error('Response data:', error.response.data);
+                console.error('Response status:', error.response.status);
+            }
             throw error;
         }
     }

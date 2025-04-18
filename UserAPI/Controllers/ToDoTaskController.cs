@@ -5,6 +5,7 @@ using UserAPI.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
+using System.Linq;
 
 namespace UserAPI.Controllers
 {
@@ -141,7 +142,7 @@ namespace UserAPI.Controllers
         }
 
         [HttpPost("lists/{taskListId}/tasks")]
-        public async Task<IActionResult> CreateTask(long taskListId, [FromBody] CreateTaskRequest request)
+        public async Task<IActionResult> CreateTask(long taskListId, [FromForm] CreateTaskRequest request)
         {
             var userId = long.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
             var taskList = await _taskService.GetTaskListAsync(taskListId, 0);
@@ -150,13 +151,31 @@ namespace UserAPI.Controllers
                 return NotFound();
             }
 
-            Console.WriteLine(JsonSerializer.Serialize(request));
-            var task = await _taskService.CreateTaskAsync(taskListId, request.Title, request.Description, request.Priority, request.DueDate, request.Points, request.IsPenalty);
+            byte[]? imageData = null;
+            string? imageMimeType = null;
+
+            if (request.ImageFile != null && request.ImageFile.Length > 0)
+            {
+                imageMimeType = request.ImageFile.ContentType;
+                if (!imageMimeType.StartsWith("image/"))
+                {
+                     return BadRequest("Недопустимый тип файла изображения.");
+                }
+                using (var memoryStream = new MemoryStream())
+                {
+                    await request.ImageFile.CopyToAsync(memoryStream);
+                    imageData = memoryStream.ToArray();
+                }
+            }
+            
+            Console.WriteLine($"Creating task: Title={request.Title}, Desc={request.Description}, Points={request.Points}, HasImage={imageData != null}");
+
+            var task = await _taskService.CreateTaskAsync(taskListId, request.Title, request.Description, request.Priority, request.DueDate, request.Points, request.IsPenalty, imageData, imageMimeType);
             return CreatedAtAction(nameof(GetTaskList), new { taskListId }, task);
         }
 
         [HttpPut("lists/{taskListId}/tasks/{taskId}")]
-        public async Task<IActionResult> UpdateTask(long taskListId, long taskId, [FromBody] UpdateTaskRequest request)
+        public async Task<IActionResult> UpdateTask(long taskListId, long taskId, [FromForm] UpdateTaskRequest request)
         {
             var userId = long.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
             var taskList = await _taskService.GetTaskListAsync(taskListId, 0);
@@ -164,6 +183,32 @@ namespace UserAPI.Controllers
             {
                 return NotFound();
             }
+            
+            // Получаем текущую задачу, чтобы знать, было ли у нее изображение
+            var currentTask = taskList.ToDoTasks.FirstOrDefault(t => t.Id == taskId);
+            if (currentTask == null) {
+                return NotFound("Задача не найдена в этом списке.");
+            }
+
+            byte[]? imageData = currentTask.ImageData;
+            string? imageMimeType = currentTask.ImageMimeType;
+
+            if (request.ImageFile != null && request.ImageFile.Length > 0)
+            {
+                imageMimeType = request.ImageFile.ContentType;
+                if (!imageMimeType.StartsWith("image/"))
+                {
+                     return BadRequest("Недопустимый тип файла изображения.");
+                }
+                using (var memoryStream = new MemoryStream())
+                {
+                    await request.ImageFile.CopyToAsync(memoryStream);
+                    imageData = memoryStream.ToArray();
+                }
+            }
+            // TODO: Возможно, нужна логика для удаления изображения, если файл не пришел, а он был?
+            
+            Console.WriteLine($"Updating task {taskId}: Title={request.Title}, Desc={request.Description}, Points={request.Points}, HasImage={imageData != null}");
 
             var task = await _taskService.UpdateTaskAsync(
                 taskListId,
@@ -173,7 +218,9 @@ namespace UserAPI.Controllers
                 request.Priority,
                 request.DueDate,
                 request.Points,
-                request.IsPenalty);
+                request.IsPenalty,
+                imageData, 
+                imageMimeType);
             return task != null ? Ok(task) : NotFound();
         }
 
@@ -242,9 +289,9 @@ namespace UserAPI.Controllers
                 DailyTasksCompleted = new[] {
                     new { Date = "2023-10-01", Count = 3 },
                     new { Date = "2023-10-02", Count = 5 },
-                    new { Date = "2025-02-03", Count = 4 },
-                    new { Date = "2023-10-04", Count = 6 },
-                    new { Date = "2023-10-05", Count = 2 }
+                    new { Date = "2023-10-03", Count = 4 },
+                    new { Date = "2025-02-04", Count = 6 },
+                    new { Date = "2023-02-05", Count = 2 }
                 }
             };
             return Ok(analyticsData);
@@ -272,11 +319,12 @@ namespace UserAPI.Controllers
     public class CreateTaskRequest
     {
         public string Title { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public string Priority { get; set; }
         public DateTime? DueDate { get; set; }
         public int Points { get; set; }
         public bool IsPenalty { get; set; }
+        public IFormFile? ImageFile { get; set; }
     }
 
     public class UpdateTaskRequest
@@ -287,5 +335,6 @@ namespace UserAPI.Controllers
         public DateTime? DueDate { get; set; }
         public int Points { get; set; }
         public bool IsPenalty { get; set; }
+        public IFormFile? ImageFile { get; set; }
     }
 } 

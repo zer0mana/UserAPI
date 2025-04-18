@@ -11,9 +11,9 @@ public interface IToDoTaskService
     Task<ToDoList> UpdateTaskListAsync(long taskListId, string title, string? description, int requiredPoints, byte[]? imageData, string? imageMimeType);
     Task<bool> DeleteTaskListAsync(long taskListId);
     Task<bool> MarkTaskCompletedAsync(long taskListId, long taskId);
-    Task<ToDoTask> CreateTaskAsync(long taskListId, string title, string? description, string priority, DateTime? dueDate, int points, bool isPenalty);
+    Task<ToDoTask> CreateTaskAsync(long taskListId, string title, string? description, string priority, DateTime? dueDate, int points, bool isPenalty, byte[]? imageData, string? imageMimeType);
     Task<bool> DeleteTaskAsync(long taskListId, long taskId);
-    Task<ToDoTask?> UpdateTaskAsync(long taskListId, long taskId, string title, string? description, string priority, DateTime? dueDate, int points, bool isPenalty);
+    Task<ToDoTask?> UpdateTaskAsync(long taskListId, long taskId, string title, string? description, string priority, DateTime? dueDate, int points, bool isPenalty, byte[]? imageData, string? imageMimeType);
 }
 
 public class ToDoTaskService : IToDoTaskService
@@ -120,7 +120,7 @@ public class ToDoTaskService : IToDoTaskService
         return Task.FromResult(true);
     }
 
-    public Task<ToDoTask> CreateTaskAsync(long taskListId, string title, string? description, string priority, DateTime? dueDate, int points, bool isPenalty)
+    public Task<ToDoTask> CreateTaskAsync(long taskListId, string title, string? description, string priority, DateTime? dueDate, int points, bool isPenalty, byte[]? imageData, string? imageMimeType)
     {
         var task = new ToDoTask
         {
@@ -131,7 +131,9 @@ public class ToDoTaskService : IToDoTaskService
             DueDate = dueDate,
             ToDoTaskListId = taskListId,
             Points = points,
-            IsPenalty = isPenalty
+            IsPenalty = isPenalty,
+            ImageData = imageData,
+            ImageMimeType = imageMimeType
         };
         _tasks.Add(task);
         Console.WriteLine("create task");
@@ -150,7 +152,7 @@ public class ToDoTaskService : IToDoTaskService
         return Task.FromResult(true);
     }
 
-    public Task<ToDoTask?> UpdateTaskAsync(long taskListId, long taskId, string title, string? description, string priority, DateTime? dueDate, int points, bool isPenalty)
+    public Task<ToDoTask?> UpdateTaskAsync(long taskListId, long taskId, string title, string? description, string priority, DateTime? dueDate, int points, bool isPenalty, byte[]? imageData, string? imageMimeType)
     {
         var task = _tasks.FirstOrDefault(t => t.ToDoTaskListId == taskListId && t.Id == taskId);
         if (task == null)
@@ -164,6 +166,11 @@ public class ToDoTaskService : IToDoTaskService
         task.DueDate = dueDate;
         task.Points = points;
         task.IsPenalty = isPenalty;
+        if (imageData != null) 
+        {
+             task.ImageData = imageData;
+             task.ImageMimeType = imageMimeType;
+        }
 
         return Task.FromResult<ToDoTask?>(task);
     }

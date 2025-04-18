@@ -11,4 +11,6 @@ public class ToDoTask
     public long ToDoTaskListId { get; set; }
     public int Points { get; set; } = 0;
     public bool IsPenalty { get; set; } = true;
+    public byte[]? ImageData { get; set; }
+    public string? ImageMimeType { get; set; }
 }
