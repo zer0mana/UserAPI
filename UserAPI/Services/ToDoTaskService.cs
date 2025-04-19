@@ -14,6 +14,8 @@ public interface IToDoTaskService
     Task<ToDoTask> CreateTaskAsync(long taskListId, string title, string? description, string priority, DateTime? dueDate, int points, bool isPenalty, byte[]? imageData, string? imageMimeType);
     Task<bool> DeleteTaskAsync(long taskListId, long taskId);
     Task<ToDoTask?> UpdateTaskAsync(long taskListId, long taskId, string title, string? description, string priority, DateTime? dueDate, int points, bool isPenalty, byte[]? imageData, string? imageMimeType);
+    Task<bool> RequestPublicationAsync(long taskListId, long userId);
+    Task<bool> UnpublishTaskListAsync(long taskListId, long userId);
 }
 
 public class ToDoTaskService : IToDoTaskService
@@ -173,5 +175,41 @@ public class ToDoTaskService : IToDoTaskService
         }
 
         return Task.FromResult<ToDoTask?>(task);
+    }
+
+    public Task<bool> RequestPublicationAsync(long taskListId, long userId)
+    {
+        var taskList = _taskLists.FirstOrDefault(tl => tl.Id == taskListId);
+        // Проверяем, что список существует и принадлежит пользователю
+        if (taskList == null || taskList.UserId != userId)
+        {
+            return Task.FromResult(false);
+        }
+        // Запросить публикацию можно только если статус None или Rejected
+        if (taskList.PublicationStatus == "None" || taskList.PublicationStatus == "Rejected")
+        {
+            taskList.PublicationStatus = "Pending";
+            taskList.RejectionReason = null; // Сбрасываем причину отклонения
+            Console.WriteLine($"Task list {taskListId} publication requested.");
+            return Task.FromResult(true);
+        }
+        return Task.FromResult(false); // Нельзя запросить публикацию в других статусах
+    }
+
+    public Task<bool> UnpublishTaskListAsync(long taskListId, long userId)
+    {
+        var taskList = _taskLists.FirstOrDefault(tl => tl.Id == taskListId);
+        if (taskList == null || taskList.UserId != userId)
+        {
+            return Task.FromResult(false);
+        }
+        // Снять с публикации можно только если статус Published
+        if (taskList.PublicationStatus == "Published")
+        {
+            taskList.PublicationStatus = "None";
+            Console.WriteLine($"Task list {taskListId} unpublished.");
+            return Task.FromResult(true);
+        }
+        return Task.FromResult(false); // Нельзя снять с публикации в других статусах
     }
 } 

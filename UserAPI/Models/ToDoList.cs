@@ -15,4 +15,6 @@ public class ToDoList
     public int Streak { get; set; } = 101;
     public byte[]? ImageData { get; set; }
     public string? ImageMimeType { get; set; }
+    public string PublicationStatus { get; set; } = "None"; // None, Pending, Published, Rejected
+    public string? RejectionReason { get; set; }
 }

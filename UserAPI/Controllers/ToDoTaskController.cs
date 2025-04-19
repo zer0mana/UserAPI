@@ -42,6 +42,8 @@ namespace UserAPI.Controllers
             {
                 return NotFound();
             }
+            taskList.PublicationStatus = "Pending";
+            
             return Ok(taskList);
         }
 
@@ -290,11 +292,36 @@ namespace UserAPI.Controllers
                     new { Date = "2023-10-01", Count = 3 },
                     new { Date = "2023-10-02", Count = 5 },
                     new { Date = "2023-10-03", Count = 4 },
-                    new { Date = "2025-02-04", Count = 6 },
-                    new { Date = "2023-02-05", Count = 2 }
+                    new { Date = "2023-10-04", Count = 6 },
+                    new { Date = "2023-10-05", Count = 2 }
                 }
             };
             return Ok(analyticsData);
+        }
+
+        [HttpPut("lists/{taskListId}/publish")]
+        public async Task<IActionResult> RequestPublication(long taskListId)
+        {
+            var userId = long.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var result = await _taskService.RequestPublicationAsync(taskListId, userId);
+            if (!result)
+            {
+                // Возможно, стоит вернуть BadRequest или NotFound, если пользователь не владелец или статус не позволяет
+                return BadRequest("Не удалось запросить публикацию. Проверьте статус списка или права доступа.");
+            }
+            return NoContent(); // Успех
+        }
+
+        [HttpPut("lists/{taskListId}/unpublish")]
+        public async Task<IActionResult> UnpublishTaskList(long taskListId)
+        {
+            var userId = long.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var result = await _taskService.UnpublishTaskListAsync(taskListId, userId);
+            if (!result)
+            {
+                return BadRequest("Не удалось снять с публикации. Проверьте статус списка или права доступа.");
+            }
+            return NoContent(); // Успех
         }
     }
 

@@ -231,6 +231,26 @@ class TaskService {
             throw error;
         }
     }
+
+    async requestPublication(taskListId) {
+        try {
+            const response = await api.put(`/todotask/lists/${taskListId}/publish`);
+            return response.status === 204; // Ожидаем NoContent
+        } catch (error) {
+            console.error(`Error requesting publication for task list ${taskListId}:`, error);
+            throw error;
+        }
+    }
+
+    async unpublishTaskList(taskListId) {
+        try {
+            const response = await api.put(`/todotask/lists/${taskListId}/unpublish`);
+            return response.status === 204; // Ожидаем NoContent
+        } catch (error) {
+            console.error(`Error unpublishing task list ${taskListId}:`, error);
+            throw error;
+        }
+    }
 }
 
 export default new TaskService(); 

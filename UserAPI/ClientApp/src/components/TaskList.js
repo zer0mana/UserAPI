@@ -42,6 +42,8 @@ import axios from 'axios';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import authService from '../services/authService';
+import PublishIcon from '@mui/icons-material/Publish';
+import UnpublishedIcon from '@mui/icons-material/Unpublished';
 
 // Функция для конвертации ArrayBuffer/Uint8Array в Base64 (если еще не импортирована или не определена)
 const arrayBufferToBase64 = (buffer) => {
@@ -82,35 +84,34 @@ const TaskList = () => {
   const [pointsDeducted, setPointsDeducted] = useState(0);
   const [taskImageFile, setTaskImageFile] = useState(null); // Для файла изображения задачи
   const [taskImagePreviewUrl, setTaskImagePreviewUrl] = useState(''); // Для предпросмотра
+  const [publicationStatus, setPublicationStatus] = useState("None");
+  const [rejectionReason, setRejectionReason] = useState(null);
 
-  useEffect(() => {
-    const fetchTaskList = async () => {
+  const fetchTaskListData = async () => {
       try {
+        setLoading(true);
         const response = await taskService.getTaskList(id);
-        console.log('Ответ от сервера при загрузке списка задач:', response);
+        console.log('Обновленные данные списка задач:', response);
         setTitle(response.title);
         setDescription(response.description || '');
         setTasks(response.toDoTasks || []);
         setStreak(response.streak || 0);
-        
-        // Проверяем, является ли текущий пользователь владельцем списка
+        setPublicationStatus(response.publicationStatus || "None");
+        setRejectionReason(response.rejectionReason || null);
+
         const currentUser = authService.getCurrentUser();
-        console.log('Текущий пользователь:', currentUser);
-        console.log('ID пользователя из токена:', currentUser?.id);
-        console.log('ID владельца списка:', response.userId);
-        console.log('Тип ID пользователя:', typeof currentUser?.id);
-        console.log('Тип ID владельца:', typeof response.userId);
         setIsOwner(currentUser && Number(currentUser.id) === response.userId);
-        
-        setLoading(false);
+        setError(null);
       } catch (err) {
         console.error('Ошибка при загрузке списка задач:', err);
         setError('Не удалось загрузить список задач. Пожалуйста, попробуйте позже.');
-        setLoading(false);
+      } finally {
+          setLoading(false);
       }
-    };
+  };
 
-    fetchTaskList();
+  useEffect(() => {
+    fetchTaskListData();
   }, [id]);
 
   const handleTaskFileChange = (e) => {
@@ -264,6 +265,79 @@ const TaskList = () => {
     }
   };
 
+  const handlePublishRequest = async () => {
+      if (!id) return;
+      try {
+          setLoading(true);
+          const success = await taskService.requestPublication(id);
+          if (success) {
+              await fetchTaskListData();
+          } else {
+              setError('Не удалось отправить запрос на публикацию.');
+          }
+      } catch (err) {
+          console.error('Ошибка при запросе публикации:', err);
+          setError('Ошибка при запросе публикации.');
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  const handleUnpublish = async () => {
+      if (!id) return;
+      if (window.confirm('Вы уверены, что хотите снять список с публикации?')) {
+          try {
+              setLoading(true);
+              const success = await taskService.unpublishTaskList(id);
+              if (success) {
+                  await fetchTaskListData();
+              } else {
+                  setError('Не удалось снять с публикации.');
+              }
+          } catch (err) {
+              console.error('Ошибка при снятии с публикации:', err);
+              setError('Ошибка при снятии с публикации.');
+          } finally {
+              setLoading(false);
+          }
+      }
+  };
+
+  const renderPublicationStatus = () => {
+    if (!isOwner) {
+      if (publicationStatus === 'Published') {
+         return <Chip label="Опубликовано" color="info" size="small" />;
+      }
+      return null;
+    }
+
+    switch (publicationStatus) {
+      case 'Pending':
+        return <Chip label="На модерации" color="warning" size="small" />;
+      case 'Published':
+        return <Chip label="Опубликовано" color="info" size="small" onClick={handleUnpublish} />;
+      case 'Rejected':
+        return (
+          <Tooltip title={rejectionReason || 'Причина отклонения не указана'} arrow>
+            <Chip label="Отклонено" color="error" size="small" />
+          </Tooltip>
+        );
+      case 'None':
+      default:
+        return (
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<PublishIcon />}
+            onClick={handlePublishRequest}
+            disabled={loading}
+          >
+            Опубликовать
+          </Button>
+        );
+    }
+  };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
@@ -275,8 +349,8 @@ const TaskList = () => {
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto', mt: 4, p: 2 }}>
       <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
-          <Box>
+        <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
+          <Box flexGrow={1} mr={2}>
             <Typography variant="h4" component="h1" gutterBottom>
               {title}
             </Typography>
@@ -298,42 +372,46 @@ const TaskList = () => {
               </Box>
             </Box>
           </Box>
-          <Box>
+          <Box display="flex" flexDirection="column" alignItems="flex-end" gap={1}>
+            {renderPublicationStatus()}
+            <Box display="flex" gap={1}>
+                {isOwner && (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                        startIcon={<AddIcon />}
+                        onClick={() => handleOpenTaskDialog()}
+                    >
+                        Добавить задачу
+                    </Button>
+                )}
+                <Button
+                    variant="outlined"
+                    color="primary"
+                    size="small"
+                    startIcon={<BarChartIcon />}
+                    component={Link}
+                    to={`/analytics/${id}`}
+                >
+                    Аналитика
+                </Button>
+            </Box>
             {isOwner && (
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={<AddIcon />}
-                onClick={() => handleOpenTaskDialog()}
-                sx={{ mr: 2 }}
-              >
-                Добавить задачу
-              </Button>
+                <Button
+                    variant="outlined"
+                    color="secondary"
+                    size="small"
+                    component={Link}
+                    to={`/edit-task-list/${id}`}
+                    startIcon={<EditIcon />}
+                    sx={{ mt: 1 }}
+                >
+                    Редактировать список
+                </Button>
             )}
-            <Button
-              variant="outlined"
-              color="primary"
-              startIcon={<BarChartIcon />}
-              component={Link}
-              to={`/analytics/${id}`}
-            >
-              Аналитика
-            </Button>
           </Box>
         </Box>
-        {isOwner && (
-          <Box>
-            <Button
-              variant="outlined"
-              color="primary"
-              component={Link}
-              to={`/edit-task-list/${id}`}
-              startIcon={<EditIcon />}
-            >
-              Редактировать список
-            </Button>
-          </Box>
-        )}
       </Paper>
 
       {error && (
