@@ -20,7 +20,7 @@ public static class Extensions
         services.AddFluentMigratorCore()
             .ConfigureRunner(rb => rb.AddPostgres()
                 .WithGlobalConnectionString(s =>
-                    "User ID=postgres;Password=123456;Host=localhost;Port=15432;Database=user-api;Pooling=true;")
+                    "User ID=postgres;Password=123456;Host=db;Port=5432;Database=user-api;Pooling=true;")
                 .ScanIn(typeof(Extensions).Assembly).For.Migrations()
             )
             .AddLogging(lb => lb.AddFluentMigratorConsole());
