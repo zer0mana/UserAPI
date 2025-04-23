@@ -1,10 +1,12 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using UserAPI.Models;
+using UserAPI_DAL.Models;
+using UserAPI_DAL.Repositories.Interfaces;
 
-namespace UserAPI.Services
+namespace UserAPI_BLL.Services
 {
     public interface IAuthService
     {
@@ -15,30 +17,32 @@ namespace UserAPI.Services
     public class AuthService : IAuthService
     {
         private readonly IConfiguration _configuration;
-        private readonly List<User> _users = new(); // В реальном приложении здесь будет база данных
+        private readonly IUserRepository _userRepository;
 
-        public AuthService(IConfiguration configuration)
+        public AuthService(
+            IConfiguration configuration,
+            IUserRepository userRepository)
         {
             _configuration = configuration;
+            _userRepository = userRepository;
         }
 
         public async Task<AuthResponse> Register(RegisterRequest request)
         {
-            if (_users.Any(u => u.Email == request.Email))
+            if (await _userRepository.GetAsync(request.Email, CancellationToken.None) is not null)
             {
                 throw new Exception("Пользователь с таким email уже существует");
             }
 
             var user = new User
             {
-                Id = _users.Count + 1,
                 Email = request.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 FirstName = request.FirstName,
                 LastName = request.LastName
             };
 
-            _users.Add(user);
+            await _userRepository.CreateAsync(user, CancellationToken.None);
 
             var token = GenerateJwtToken(user);
 
@@ -53,7 +57,7 @@ namespace UserAPI.Services
 
         public async Task<AuthResponse> Login(LoginRequest request)
         {
-            var user = _users.FirstOrDefault(u => u.Email == request.Email);
+            var user = await _userRepository.GetAsync(request.Email, CancellationToken.None);
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             {
                 throw new Exception("Неверный email или пароль");

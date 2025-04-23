@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using UserAPI.Models;
-using UserAPI.Services;
+using UserAPI_BLL.Services;
+using UserAPI_DAL.Models;
 
 namespace UserAPI.Controllers
 {

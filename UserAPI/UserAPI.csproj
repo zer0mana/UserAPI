@@ -20,6 +20,11 @@
       <Folder Include="ClientApp\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\UserAPI-BLL\UserAPI-BLL.csproj" />
+      <ProjectReference Include="..\UserAPI-DAL\UserAPI-DAL.csproj" />
+    </ItemGroup>
+
     <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
       <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
       <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build" />

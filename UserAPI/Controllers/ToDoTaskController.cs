@@ -1,11 +1,6 @@
-using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using UserAPI.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Hosting;
-using System.IO;
-using System.Linq;
+using UserAPI_BLL.Services;
 
 namespace UserAPI.Controllers
 {
@@ -36,13 +31,14 @@ namespace UserAPI.Controllers
         public async Task<IActionResult> GetTaskList(long taskListId)
         {
             var userId = long.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
-            var taskList = await _taskService.GetTaskListAsync(taskListId, 0);
+            var taskList = await _taskService.GetTaskListAsync(userId, taskListId, 0);
             if (taskList == null)
                 // || taskList.UserId != userId)
             {
                 return NotFound();
             }
             taskList.PublicationStatus = "Pending";
+            taskList.UserId = userId;
             
             return Ok(taskList);
         }
@@ -101,8 +97,8 @@ namespace UserAPI.Controllers
         public async Task<IActionResult> UpdateTaskList(long taskListId, [FromForm] UpdateTaskListRequest request)
         {
             var userId = long.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
-            var taskList = await _taskService.GetTaskListAsync(taskListId, 0);
-            if (taskList == null || taskList.UserId != userId)
+            var taskList = await _taskService.GetTaskListAsync(userId, taskListId, 0);
+            if (taskList == null) // || taskList.UserId != userId)
             {
                 return NotFound();
             }
@@ -133,8 +129,8 @@ namespace UserAPI.Controllers
         public async Task<IActionResult> DeleteTaskList(long taskListId)
         {
             var userId = long.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
-            var taskList = await _taskService.GetTaskListAsync(taskListId, 0);
-            if (taskList == null || taskList.UserId != userId)
+            var taskList = await _taskService.GetTaskListAsync(userId, taskListId, 0);
+            if (taskList == null) // || taskList.UserId != userId)
             {
                 return NotFound();
             }
@@ -147,8 +143,8 @@ namespace UserAPI.Controllers
         public async Task<IActionResult> CreateTask(long taskListId, [FromForm] CreateTaskRequest request)
         {
             var userId = long.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
-            var taskList = await _taskService.GetTaskListAsync(taskListId, 0);
-            if (taskList == null || taskList.UserId != userId)
+            var taskList = await _taskService.GetTaskListAsync(userId, taskListId, 0);
+            if (taskList == null) // || taskList.UserId != userId)
             {
                 return NotFound();
             }
@@ -180,8 +176,8 @@ namespace UserAPI.Controllers
         public async Task<IActionResult> UpdateTask(long taskListId, long taskId, [FromForm] UpdateTaskRequest request)
         {
             var userId = long.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
-            var taskList = await _taskService.GetTaskListAsync(taskListId, 0);
-            if (taskList == null || taskList.UserId != userId)
+            var taskList = await _taskService.GetTaskListAsync(userId, taskListId, 0);
+            if (taskList == null) // || taskList.UserId != userId)
             {
                 return NotFound();
             }
@@ -230,8 +226,8 @@ namespace UserAPI.Controllers
         public async Task<IActionResult> DeleteTask(long taskListId, long taskId)
         {
             var userId = long.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
-            var taskList = await _taskService.GetTaskListAsync(taskListId, 0);
-            if (taskList == null || taskList.UserId != userId)
+            var taskList = await _taskService.GetTaskListAsync(userId, taskListId, 0);
+            if (taskList == null) // || taskList.UserId != userId)
             {
                 return NotFound();
             }
@@ -244,13 +240,13 @@ namespace UserAPI.Controllers
         public async Task<IActionResult> MarkTaskCompleted(long taskListId, long taskId)
         {
             var userId = long.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
-            var taskList = await _taskService.GetTaskListAsync(taskListId, 0);
-            if (taskList == null || taskList.UserId != userId)
+            var taskList = await _taskService.GetTaskListAsync(userId, taskListId, 0);
+            if (taskList == null) // || taskList.UserId != userId)
             {
                 return NotFound();
             }
 
-            var result = await _taskService.MarkTaskCompletedAsync(taskListId, taskId);
+            var result = await _taskService.MarkTaskCompletedAsync(userId, taskListId, taskId);
             return result ? NoContent() : NotFound();
         }
         

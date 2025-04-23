@@ -9,7 +9,32 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="50da57f9-91b9-4780-8580-152e42271850" name="Changes" comment="" />
+    <list default="true" id="50da57f9-91b9-4780-8580-152e42271850" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/UserAPI-DAL/DalOptions.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserAPI-DAL/Extensions.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserAPI-DAL/LinqToDb/ApplicationDbContext.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserAPI-DAL/Repositories/Interfaces/IToDoListRepository.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserAPI-DAL/Repositories/Interfaces/IToDoTaskRepository.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserAPI-DAL/Repositories/Interfaces/IUserRepository.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserAPI-DAL/Repositories/Interfaces/IUserToToDoListRepository.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserAPI-DAL/Repositories/ToDoListRepository.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserAPI-DAL/Repositories/ToDoTaskRepository.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserAPI-DAL/Repositories/UserRepository.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserAPI-DAL/Repositories/UserToToDoListRepository.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.UserAPI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.UserAPI/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI.sln" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI.sln" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskLists.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/src/components/TaskLists.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/Controllers/AuthController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/Controllers/AuthController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/Controllers/ToDoTaskController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/Controllers/ToDoTaskController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/Models/AuthModels.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI-DAL/Models/AuthModels.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/Models/ToDoList.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI-DAL/Models/ToDoList.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/Models/ToDoTask.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI-DAL/Models/ToDoTask.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/Models/User.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI-DAL/Models/User.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/Services/AuthService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/Services/AuthService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/Services/ToDoTaskService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/Services/ToDoTaskService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/UserAPI.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/UserAPI.csproj" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -32,11 +57,11 @@
 }</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/6eb64a83264b490faecaf5d9f80c71fd1e38b0/40/8abb3853/ControllerBase.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/UserAPI-DAL/Models/AuthModels.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/UserAPI-DAL/Models/ToDoList.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/UserAPI-DAL/Models/ToDoTask.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/UserAPI-DAL/Models/User.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/UserAPI/ClientApp/package-lock.json" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Max/RiderProjects/UserAPI/UserAPI/ClientApp/package-lock.json" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Max/RiderProjects/UserAPI/UserAPI/ClientApp/package.json" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Max/RiderProjects/UserAPI/UserAPI/ClientApp/package.json" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Max/RiderProjects/UserAPI/UserAPI/Controllers/ToDoTaskController.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/UserAPI/obj/Debug/net8.0/.NETCoreApp,Version=v8.0.AssemblyAttributes.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
@@ -132,6 +157,8 @@
       <workItem from="1744929677220" duration="10218000" />
       <workItem from="1744970182498" duration="5527000" />
       <workItem from="1744982641462" duration="5294000" />
+      <workItem from="1745017831220" duration="4823000" />
+      <workItem from="1745261144504" duration="4044000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -325,7 +352,23 @@
       <option name="project" value="LOCAL" />
       <updated>1744988594395</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="Фронтенд - Рефакторинг">
+      <option name="closed" value="true" />
+      <created>1745019900736</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1745019900736</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Фронтенд - Публикация">
+      <option name="closed" value="true" />
+      <created>1745020970702</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1745020970702</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -342,7 +385,6 @@
     <MESSAGE value="Фронтенд - Авторизация" />
     <MESSAGE value="Фронтенд - Очки" />
     <MESSAGE value="Фронтенд - Подписки" />
-    <MESSAGE value="Фронтенд - Рефакторинг" />
     <MESSAGE value="Фронтенд - Поиск" />
     <MESSAGE value="Фронтенд - Стрики" />
     <MESSAGE value="Фронтенд - Аналитика" />
@@ -350,6 +392,8 @@
     <MESSAGE value="Фронтенд - Календарь задач" />
     <MESSAGE value="Фронтенд - Обложка для списка" />
     <MESSAGE value="Фронтенд - Обложка для задачи" />
-    <option name="LAST_COMMIT_MESSAGE" value="Фронтенд - Обложка для задачи" />
+    <MESSAGE value="Фронтенд - Рефакторинг" />
+    <MESSAGE value="Фронтенд - Публикация" />
+    <option name="LAST_COMMIT_MESSAGE" value="Фронтенд - Публикация" />
   </component>
 </project>

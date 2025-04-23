@@ -87,14 +87,6 @@ const TaskLists = () => {
         <Typography variant="h4" component="h1">
           Мои списки задач
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          component={Link}
-          to="/create-task-list"
-        >
-          Создать список
-        </Button>
       </Box>
 
       {error && (
@@ -123,7 +115,7 @@ const TaskLists = () => {
           }
 
           return (
-            <Grid item xs={12} md={6} lg={6} key={list.id}>
+            <Grid item xs={12} md={6} lg={10} key={list.id}>
               <Paper 
                 elevation={2} 
                 sx={{ 

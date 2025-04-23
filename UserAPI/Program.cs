@@ -2,7 +2,9 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using UserAPI.Services;
+using UserAPI_BLL;
+using UserAPI_DAL;
+using UserAPI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,8 +35,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddSingleton<IToDoTaskService, ToDoTaskService>();
-builder.Services.AddSingleton<IAuthService, AuthService>();
+builder.Services.AddBll();
+builder.Services.AddDal();
 
 builder.Services.AddCors(options =>
 {
@@ -63,5 +65,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MigrateUp();
 
 app.Run();
