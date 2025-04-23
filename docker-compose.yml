@@ -33,6 +33,19 @@ services:
       DB_PASSWORD: "123456"
     depends_on:
       - db
+  
+  frontend:
+    container_name: userapi-frontend
+    build:
+      context: UserAPI/ClientApp
+      dockerfile: Dockerfile
+    ports:
+      - "3006:3006"
+    volumes:
+      - ./UserAPI/ClientApp:/app
+      - /app/node_modules
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:

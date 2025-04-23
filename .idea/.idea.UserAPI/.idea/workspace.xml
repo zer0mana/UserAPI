@@ -9,15 +9,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="50da57f9-91b9-4780-8580-152e42271850" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+    <list default="true" id="50da57f9-91b9-4780-8580-152e42271850" name="Changes" comment="Бекенд - Docker">
+      <change afterPath="$PROJECT_DIR$/UserAPI/ClientApp/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.UserAPI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.UserAPI/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI-DAL/Extensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI-DAL/Extensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI-DAL/LinqToDb/ApplicationDbContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI-DAL/LinqToDb/ApplicationDbContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/Extensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/Extensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/UserAPI.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/UserAPI.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAPI/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/appsettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/.env" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/.env.development" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/.env.development" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAPI/ClientApp/config-overrides.js" beforeDir="false" afterPath="$PROJECT_DIR$/UserAPI/ClientApp/config-overrides.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -369,7 +366,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745020970702</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="Бекенд - Docker">
+      <option name="closed" value="true" />
+      <created>1745433198889</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1745433198889</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -395,6 +400,8 @@
     <MESSAGE value="Фронтенд - Обложка для задачи" />
     <MESSAGE value="Фронтенд - Рефакторинг" />
     <MESSAGE value="Фронтенд - Публикация" />
-    <option name="LAST_COMMIT_MESSAGE" value="Фронтенд - Публикация" />
+    <MESSAGE value="Бекенд - БД" />
+    <MESSAGE value="Бекенд - Docker" />
+    <option name="LAST_COMMIT_MESSAGE" value="Бекенд - Docker" />
   </component>
 </project>

@@ -15,7 +15,7 @@ module.exports = {
       port: 3006,
       proxy: {
         '/api': {
-          target: 'http://localhost:5183',
+          target: 'http://backend:8081',
           secure: false,
           changeOrigin: true,
           headers: {
@@ -26,11 +26,11 @@ module.exports = {
             res.writeHead(500, {
               'Content-Type': 'text/plain',
             });
-            res.end('Ошибка подключения к серверу. Пожалуйста, убедитесь, что сервер запущен на порту 5183.');
+            res.end('Ошибка подключения к серверу. Пожалуйста, убедитесь, что сервер запущен на порту 8081.');
           }
         },
         '/pyd-user-api-handler': {
-          target: 'http://localhost:5183',
+          target: 'http://backend:8081',
           secure: false,
           changeOrigin: true,
           headers: {
