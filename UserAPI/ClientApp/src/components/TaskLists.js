@@ -173,15 +173,42 @@ const TaskLists = () => {
                             <Tooltip title="Дней подряд">
                               <Box sx={{ display: 'flex', alignItems: 'center'}}>
                                 <LocalFireDepartmentIcon sx={{
-                                  color: list.streak > 100 ? 'purple' : list.streak > 0 ? 'orange' : 'white',
-                                  fontSize: '1.1rem',
+                                  color: list.streak > 100 ? '#BA68C8' : list.streak > 0 ? 'orange' : 'white',
+                                  fontSize: '1.5rem',
+                                  ...(list.streak > 0 && {
+                                    '@keyframes flame': {
+                                      '0%': {
+                                        transform: 'rotate(-2deg) scale(1)',
+                                        filter: 'brightness(1) drop-shadow(0 0 8px rgba(255, 165, 0, 0.6))',
+                                      },
+                                      '25%': {
+                                        transform: 'rotate(3deg) scale(1.05)',
+                                        filter: 'brightness(1.1) drop-shadow(0 0 10px rgba(255, 165, 0, 0.7))',
+                                      },
+                                      '50%': {
+                                        transform: 'rotate(-1deg) scale(1.1)',
+                                        filter: 'brightness(1.2) drop-shadow(0 0 12px rgba(255, 165, 0, 0.8))',
+                                      },
+                                      '75%': {
+                                        transform: 'rotate(2deg) scale(1.05)',
+                                        filter: 'brightness(1.1) drop-shadow(0 0 10px rgba(255, 165, 0, 0.7))',
+                                      },
+                                      '100%': {
+                                        transform: 'rotate(-2deg) scale(1)',
+                                        filter: 'brightness(1) drop-shadow(0 0 8px rgba(255, 165, 0, 0.6))',
+                                      }
+                                    },
+                                    animation: 'flame 2s infinite ease-in-out',
+                                    transformOrigin: 'center bottom',
+                                  }),
                                   mr: 0.5
                                 }} />
                                 <Typography
                                     variant="body2"
                                     sx={{
                                       color: 'white',
-                                      fontWeight: 'bold'
+                                      fontWeight: 'bold',
+                                      fontSize: '1.2rem'
                                     }}
                                 >
                                   {list.streak || 0}

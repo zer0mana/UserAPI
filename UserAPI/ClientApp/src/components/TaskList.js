@@ -48,6 +48,8 @@ import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import authService from '../services/authService';
 import PublishIcon from '@mui/icons-material/Publish';
 import UnpublishedIcon from '@mui/icons-material/Unpublished';
+import CloseIcon from '@mui/icons-material/Close';
+import TaskAnalytics from './TaskAnalytics';
 
 // Функция для конвертации ArrayBuffer/Uint8Array в Base64 (если еще не импортирована или не определена)
 const arrayBufferToBase64 = (buffer) => {
@@ -71,6 +73,10 @@ const TaskList = () => {
     const [tasks, setTasks] = useState([]);
     const [isOwner, setIsOwner] = useState(false);
     const [streak, setStreak] = useState(0);
+    const [earnedPoints, setEarnedPoints] = useState(0);
+    const [requiredPoints, setRequiredPoints] = useState(0);
+    const [showAnalytics, setShowAnalytics] = useState(false);
+    const [analyticsData, setAnalyticsData] = useState(null);
 
     // Состояние для диалога создания/редактирования задачи
     const [openTaskDialog, setOpenTaskDialog] = useState(false);
@@ -98,10 +104,13 @@ const TaskList = () => {
             setLoading(true);
             const response = await taskService.getTaskList(id);
             console.log('Обновленные данные списка задач:', response);
+            console.log('Значение streak:', response.streak);
             setTitle(response.title);
             setDescription(response.description || '');
             setTasks(response.toDoTasks || []);
             setStreak(response.streak || 0);
+            setEarnedPoints(response.earnedPoints || 0);
+            setRequiredPoints(response.requiredPoints || 0);
             setPublicationStatus(response.publicationStatus || "None");
             setRejectionReason(response.rejectionReason || null);
             setListImageData(response.imageData);
@@ -372,6 +381,17 @@ const TaskList = () => {
         );
     };
 
+    const handleAnalytics = async () => {
+        try {
+            const data = await taskService.getTaskAnalytics(id);
+            setAnalyticsData(data);
+            setShowAnalytics(true);
+        } catch (err) {
+            console.error('Ошибка при получении аналитики:', err);
+            setError('Не удалось загрузить аналитику. Пожалуйста, попробуйте позже.');
+        }
+    };
+
     if (loading) {
         return <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh"><CircularProgress /></Box>;
     }
@@ -382,39 +402,136 @@ const TaskList = () => {
 
     return (
         <Box sx={{ mt: 4, p: 3 }}>
-            <Paper elevation={2} sx={{ mb: 4, overflow: 'hidden' }}>
-                {listImageData && (
+            <Paper elevation={2} sx={{
+                mb: 4,
+                overflow: 'hidden',
+                maxWidth: 1200,
+                mx: 'auto',
+                width: 800, // Фиксированная высота всей карточки
+                height: 440, // Фиксированная высота всей карточки
+                display: 'flex',
+                flexDirection: 'column'
+            }}>
+                <Box sx={{
+                    position: 'relative',
+                    width: '100%',
+                    height: 250, // Уменьшаем высоту для фотографии
+                    flexShrink: 0,
+                    backgroundColor: 'grey.200'
+                }}>
+                    {listImageData && (
+                        <Box
+                            component="img"
+                            src={`data:${listImageMimeType || 'image/jpeg'};base64,${listImageData}`}
+                            alt={title}
+                            sx={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                display: 'block'
+                            }}
+                        />
+                    )}
+                    {/* Огонек и другие элементы поверх изображения */}
+                    {streak !== undefined && streak !== null && (
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                top: 16,
+                                left: 16,
+                                display: 'flex',
+                                alignItems: 'center',
+                                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                                borderRadius: '16px',
+                                padding: '8px 16px',
+                                color: 'white',
+                                gap: '8px'
+                            }}
+                        >
+                            <LocalFireDepartmentIcon
+                                sx={{
+                                    fontSize: '2rem',
+                                    color: streak > 100 ? '#BA68C8' : streak > 0 ? 'orange' : 'white',
+                                    ...(streak > 0 && {
+                                        '@keyframes flame': {
+                                            '0%': {
+                                                transform: 'rotate(-2deg) scale(1)',
+                                                filter: 'brightness(1) drop-shadow(0 0 8px rgba(255, 165, 0, 0.6))',
+                                            },
+                                            '25%': {
+                                                transform: 'rotate(3deg) scale(1.05)',
+                                                filter: 'brightness(1.1) drop-shadow(0 0 10px rgba(255, 165, 0, 0.7))',
+                                            },
+                                            '50%': {
+                                                transform: 'rotate(-1deg) scale(1.1)',
+                                                filter: 'brightness(1.2) drop-shadow(0 0 12px rgba(255, 165, 0, 0.8))',
+                                            },
+                                            '75%': {
+                                                transform: 'rotate(2deg) scale(1.05)',
+                                                filter: 'brightness(1.1) drop-shadow(0 0 10px rgba(255, 165, 0, 0.7))',
+                                            },
+                                            '100%': {
+                                                transform: 'rotate(-2deg) scale(1)',
+                                                filter: 'brightness(1) drop-shadow(0 0 8px rgba(255, 165, 0, 0.6))',
+                                            }
+                                        },
+                                        animation: 'flame 2s infinite ease-in-out',
+                                        transformOrigin: 'center bottom',
+                                    })
+                                }}
+                            />
+                            <Typography
+                                variant="h6"
+                                sx={{
+                                    color: 'white',
+                                    fontWeight: 'bold',
+                                    fontSize: '1.5rem'
+                                }}
+                            >
+                                {streak || 0}
+                            </Typography>
+                        </Box>
+                    )}
+                    {/* Прогресс очков справа */}
                     <Box
-                        component="img"
-                        src={`data:${listImageMimeType || 'image/jpeg'};base64,${listImageData}`}
-                        alt={title}
                         sx={{
-                            width: '100%',
-                            height: 250,
-                            objectFit: 'cover',
-                            display: 'block'
+                            position: 'absolute',
+                            top: 16,
+                            right: 16,
+                            display: 'flex',
+                            alignItems: 'center',
+                            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                            borderRadius: '16px',
+                            padding: '8px 16px',
+                            color: 'white',
                         }}
-                    />
-                )}
-                <Box sx={{ p: 3 }}>
-                    <Grid container spacing={2} alignItems="flex-start">
+                    >
+                        {earnedPoints >= requiredPoints ? (
+                            <Typography variant="h6" sx={{ color: '#4caf50', fontWeight: 'bold' }}>
+                                Выполнено
+                            </Typography>
+                        ) : (
+                            <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+                                {earnedPoints} / {requiredPoints}
+                            </Typography>
+                        )}
+                    </Box>
+                </Box>
+                <Box sx={{
+                    p: 4,
+                    height: 400, // Фиксированная высота для контента
+                    overflow: 'auto' // Добавляем скролл если контент не помещается
+                }}>
+                    <Grid container spacing={3} alignItems="flex-start">
                         <Grid item xs={12} md={10}>
-                            <Typography variant="h4" component="h1" gutterBottom noWrap sx={{ fontWeight: 'bold' }}>
+                            <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
                                 {title}
                             </Typography>
                             {description && (
-                                <Typography variant="body1" color="text.secondary" paragraph>
+                                <Typography variant="h6" color="text.secondary" paragraph sx={{ mt: 2 }}>
                                     {description}
                                 </Typography>
                             )}
-                            <Stack direction="row" spacing={3} alignItems="center" sx={{ mt: 2 }}>
-                                <Tooltip title="Текущий стрик выполнения задач">
-                                    <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
-                                        <LocalFireDepartmentIcon sx={{ mr: 0.5, fontSize: '1.2rem', color: streak > 0 ? 'orange' : 'inherit' }} />
-                                        <Typography variant="body2">{streak || 0} дн.</Typography>
-                                    </Box>
-                                </Tooltip>
-                            </Stack>
                         </Grid>
 
                         <Grid item xs={12} md={2}>
@@ -435,12 +552,10 @@ const TaskList = () => {
                                                 <AddIcon />
                                             </IconButton>
                                         </Tooltip>
-                                        <Tooltip title="Аналитика (в разработке)">
-                      <span>
-                        <IconButton component={Link} to={`/task-analytics/${id}`} size="medium" disabled>
-                          <BarChartIcon />
-                        </IconButton>
-                      </span>
+                                        <Tooltip title="Аналитика">
+                                            <IconButton onClick={handleAnalytics} size="medium">
+                                                <BarChartIcon />
+                                            </IconButton>
                                         </Tooltip>
                                         <Tooltip title="Редактировать Список">
                                             <IconButton component={Link} to={`/edit-task-list/${id}`} size="medium" color="secondary">
@@ -474,20 +589,22 @@ const TaskList = () => {
                         return (
                             <Box key={task.id} sx={{ mb: 3 }}>
                                 {taskImageSrc && (
-                                    <Box
-                                        component="img"
-                                        src={taskImageSrc}
-                                        alt={task.title}
-                                        sx={{
-                                            width: '100%',
-                                            height: 250, // Используем ту же высоту, что и для списка
-                                            objectFit: 'cover',
-                                            borderTopLeftRadius: (theme) => theme.shape.borderRadius,
-                                            borderTopRightRadius: (theme) => theme.shape.borderRadius,
-                                            display: 'block',
-                                            mb: 0
-                                        }}
-                                    />
+                                    <Box sx={{ position: 'relative' }}>
+                                        <Box
+                                            component="img"
+                                            src={taskImageSrc}
+                                            alt={task.title}
+                                            sx={{
+                                                width: '100%',
+                                                height: 250,
+                                                objectFit: 'cover',
+                                                borderTopLeftRadius: (theme) => theme.shape.borderRadius,
+                                                borderTopRightRadius: (theme) => theme.shape.borderRadius,
+                                                display: 'block',
+                                                mb: 0
+                                            }}
+                                        />
+                                    </Box>
                                 )}
 
                                 <Paper elevation={1} sx={{
@@ -495,25 +612,46 @@ const TaskList = () => {
                                     borderTopRightRadius: taskImageSrc ? 0 : undefined
                                 }}>
                                     <ListItem sx={{ py: 1.5 }}>
-                                        <Checkbox
-                                            checked={task.isCompleted}
-                                            onChange={() => handleTaskCompletion(task.id)}
-                                            icon={<RadioButtonUncheckedIcon />}
-                                            checkedIcon={<CheckCircleIcon color="success" />}
-                                            edge="start"
-                                            sx={{ mr: 1 }}
-                                        />
-                                        <ListItemText
-                                            primary={task.title}
-                                            secondary={task.description || null}
-                                            primaryTypographyProps={{
-                                                sx: {
-                                                    textDecoration: task.isCompleted ? 'line-through' : 'none',
-                                                    color: task.isCompleted ? 'text.disabled' : 'inherit',
-                                                    opacity: task.isCompleted ? 0.7 : 1
-                                                }
-                                            }}
-                                        />
+                                        <Box sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            backgroundColor: task.isCompleted ? 'rgba(76, 175, 80, 0.1)' : undefined,
+                                            borderRadius: '12px',
+                                            padding: '4px 12px',
+                                            flex: 1
+                                        }}>
+                                            <Checkbox
+                                                checked={task.isCompleted}
+                                                onChange={() => handleTaskCompletion(task.id)}
+                                                icon={<RadioButtonUncheckedIcon />}
+                                                checkedIcon={<CheckCircleIcon color="success" />}
+                                                edge="start"
+                                                sx={{ mr: 1 }}
+                                            />
+                                            <Box sx={{ flex: 1 }}>
+                                                <ListItemText
+                                                    primary={
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            <Typography
+                                                                sx={{
+                                                                    textDecoration: task.isCompleted ? 'line-through' : 'none',
+                                                                    color: task.isCompleted ? 'text.disabled' : 'inherit',
+                                                                    opacity: task.isCompleted ? 0.7 : 1
+                                                                }}
+                                                            >
+                                                                {task.title}
+                                                            </Typography>
+                                                            <Chip
+                                                                label={`${task.isPenalty ? '-' : '+'} ${task.points} очков`}
+                                                                size="small"
+                                                                color={task.isPenalty ? "error" : "success"}
+                                                            />
+                                                        </Box>
+                                                    }
+                                                    secondary={task.description || null}
+                                                />
+                                            </Box>
+                                        </Box>
                                         {isOwner && (
                                             <ListItemSecondaryAction>
                                                 <Tooltip title="Редактировать задачу">
@@ -609,6 +747,38 @@ const TaskList = () => {
                         {editingTask ? 'Сохранить' : 'Создать'}
                     </Button>
                 </DialogActions>
+            </Dialog>
+
+            {/* Диалог с аналитикой */}
+            <Dialog
+                open={showAnalytics}
+                onClose={() => setShowAnalytics(false)}
+                maxWidth="md"
+                fullWidth
+            >
+                <DialogTitle>
+                    Аналитика списка задач
+                    <IconButton
+                        aria-label="close"
+                        onClick={() => setShowAnalytics(false)}
+                        sx={{
+                            position: 'absolute',
+                            right: 8,
+                            top: 8,
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent>
+                    {analyticsData ? (
+                        <TaskAnalytics analyticsData={analyticsData} />
+                    ) : (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                            <CircularProgress />
+                        </Box>
+                    )}
+                </DialogContent>
             </Dialog>
         </Box>
     );
