@@ -1,5 +1,7 @@
 ﻿using FluentMigrator.Runner;
 using Microsoft.Extensions.DependencyInjection;
+using UserAPI_DAL.Caches;
+using UserAPI_DAL.Caches.Interfaces;
 using UserAPI_DAL.LinqToDb;
 using UserAPI_DAL.Repositories;
 using UserAPI_DAL.Repositories.Interfaces;
@@ -16,6 +18,8 @@ public static class Extensions
         services.AddSingleton<IUserRepository, UserRepository>();
         services.AddSingleton<IUserToToDoListRepository, UserToToDoListRepository>();
         services.AddSingleton<IUserToDoTaskEventRepository, UserToDoTaskEventRepository>();
+
+        services.AddSingleton<ITitleWordsCache, TitleWordsCache>();
         
         services.AddFluentMigratorCore()
             .ConfigureRunner(rb => rb.AddPostgres()

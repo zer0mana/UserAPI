@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserAPI_BLL.Services;
+using UserAPI_DAL.Caches.Interfaces;
 
 namespace UserAPI.Controllers
 {
@@ -11,11 +12,16 @@ namespace UserAPI.Controllers
     {
         private readonly IToDoTaskService _taskService;
         private readonly IWebHostEnvironment _environment;
+        private readonly ITitleWordsCache _titleWordsCache;
 
-        public ToDoTaskController(IToDoTaskService taskService, IWebHostEnvironment environment)
+        public ToDoTaskController(
+            IToDoTaskService taskService,
+            IWebHostEnvironment environment,
+            ITitleWordsCache titleWordsCache)
         {
             _taskService = taskService;
             _environment = environment;
+            _titleWordsCache = titleWordsCache;
         }
 
         [HttpGet("lists")]
@@ -56,9 +62,11 @@ namespace UserAPI.Controllers
         {
             var userId = long.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
 
-            var taskLists = await _taskService.GetTaskListsAsync(userId);
+            var words = query.Split(" ");
+            var listIds = _titleWordsCache.GetMatchedToDoLists(words);
             
-            Console.WriteLine(taskLists.Count);
+            var taskLists = await _taskService.GetTaskListsAsync(listIds.ToArray());
+            
             return Ok(taskLists);
         }
 
@@ -90,6 +98,9 @@ namespace UserAPI.Controllers
             }
 
             var taskList = await _taskService.CreateTaskListAsync(userId, request.Title, request.Description, request.RequiredPoints, imageData, imageMimeType);
+            
+            _titleWordsCache.AddTitleWord(taskList.Id, request.Title.Split(" "));
+            
             return CreatedAtAction(nameof(GetTaskList), new { taskListId = taskList.Id }, taskList);
         }
 

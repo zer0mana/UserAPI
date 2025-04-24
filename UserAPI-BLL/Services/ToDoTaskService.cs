@@ -5,6 +5,7 @@ namespace UserAPI_BLL.Services;
 
 public interface IToDoTaskService
 {
+    Task<List<ToDoList>> GetTaskListsAsync(long[] ids);
     Task<List<ToDoList>> GetTaskListsAsync(long userId);
     Task<ToDoList?> GetTaskListAsync(long userId, long taskListId, int userDayNumber);
     Task<List<ToDoList>> GetRecommendedTaskListsAsync(long userId);
@@ -36,6 +37,11 @@ public class ToDoTaskService : IToDoTaskService
         _toDoTaskRepository = toDoTaskRepository;
         _userToToDoListRepository = userToToDoListRepository;
         _userToDoTaskEventRepository = userToDoTaskEventRepository;
+    }
+
+    public async Task<List<ToDoList>> GetTaskListsAsync(long[] ids)
+    {
+        return await _toDoListRepository.GetAsync(ids, CancellationToken.None);
     }
 
     public async Task<List<ToDoList>> GetTaskListsAsync(long userId)
