@@ -251,6 +251,21 @@ class TaskService {
             throw error;
         }
     }
+
+    // --> МЕТОД ДЛЯ ОТПРАВКИ ЖАЛОБЫ <--
+    async reportTaskList(taskListId) {
+        try {
+            console.log(`Reporting task list with ID: ${taskListId}`);
+            const response = await api.post(`/todotask/lists/${taskListId}/report`);
+            console.log('Report response:', response);
+            // Можно вернуть response.data, если бэкенд что-то возвращает, 
+            // или просто вернуть true/false в зависимости от статуса
+            return response.status === 200; // Ожидаем OK
+        } catch (error) {
+            console.error(`Error reporting task list ${taskListId}:`, error);
+            throw error;
+        }
+    }
 }
 
 export default new TaskService(); 
