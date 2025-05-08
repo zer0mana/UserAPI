@@ -14,38 +14,5 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  backend:
-    container_name: userapi-backend
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    ports:
-      - "8081:8081"
-    environment:
-      Jwt__Key: "your-super-secret-key-with-at-least-32-characters"
-      Jwt__Issuer: "your-api"
-      Jwt__Audience: "your-client"
-      DB_HOST: "db"
-      DB_PORT: 5432
-      DB_NAME: "user-api"
-      DB_USER: "postgres"
-      DB_PASSWORD: "123456"
-    depends_on:
-      - db
-  
-  frontend:
-    container_name: userapi-frontend
-    build:
-      context: UserAPI/ClientApp
-      dockerfile: Dockerfile
-    ports:
-      - "3006:3006"
-    volumes:
-      - ./UserAPI/ClientApp:/app
-      - /app/node_modules
-    depends_on:
-      - backend
-
 volumes:
   postgres_data:

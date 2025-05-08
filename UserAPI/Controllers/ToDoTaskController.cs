@@ -30,6 +30,9 @@ namespace UserAPI.Controllers
             Console.WriteLine("get tasks");
             var userId = long.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
             var taskLists = await _taskService.GetTaskListsAsync(userId);
+            
+            taskLists.First().IsCompleted = true;
+            taskLists.First().Streak = 10;
             return Ok(taskLists);
         }
 
@@ -43,8 +46,9 @@ namespace UserAPI.Controllers
             {
                 return NotFound();
             }
-            taskList.PublicationStatus = "Pending";
+            taskList.PublicationStatus = "None";
             taskList.UserId = userId;
+            taskList.Streak = 10;
             
             return Ok(taskList);
         }
@@ -66,6 +70,13 @@ namespace UserAPI.Controllers
             var listIds = _titleWordsCache.GetMatchedToDoLists(words);
             
             var taskLists = await _taskService.GetTaskListsAsync(listIds.ToArray());
+            
+            for (int i = 0; i < taskLists.Count; i++)
+            {
+                taskLists[i] = await _taskService.GetTaskListAsync(userId, taskLists[i].Id, 0);
+            }
+            
+            Console.WriteLine(taskLists.First().ToDoTasks.Count);
             
             return Ok(taskLists);
         }
@@ -329,6 +340,15 @@ namespace UserAPI.Controllers
                 return BadRequest("Не удалось снять с публикации. Проверьте статус списка или права доступа.");
             }
             return NoContent(); // Успех
+        }
+        
+        [HttpPost("lists/{taskListId}/report")]
+        public IActionResult ReportTaskList(long taskListId)
+        {
+            // TODO: Реализовать логику обработки жалобы (сохранение в БД, уведомление и т.д.)
+            Console.WriteLine($"Received report for TaskList ID: {taskListId}"); 
+            // Пока просто возвращаем успешный ответ
+            return Ok(); 
         }
     }
 

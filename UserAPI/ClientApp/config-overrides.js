@@ -15,7 +15,7 @@ module.exports = {
       port: 3006,
       proxy: {
         '/api': {
-          target: 'http://backend:8081',
+          target: 'http://localhost:5183',
           secure: false,
           changeOrigin: true,
           headers: {
@@ -30,7 +30,7 @@ module.exports = {
           }
         },
         '/pyd-user-api-handler': {
-          target: 'http://backend:8081',
+          target: 'http://localhost:5183',
           secure: false,
           changeOrigin: true,
           headers: {

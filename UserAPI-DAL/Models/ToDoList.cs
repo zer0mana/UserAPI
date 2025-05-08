@@ -51,4 +51,6 @@ public class ToDoList
     public long UserId { get; set; }
     
     public int Streak { get; set; }
+    
+    public bool IsCompleted { get; set; }
 }

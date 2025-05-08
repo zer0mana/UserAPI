@@ -34,4 +34,37 @@ public class UserToToDoListRepository : IUserToToDoListRepository
             .Where(ut => ut.UserId == userId)
             .ToListAsync(cancellationToken);
     }
+    
+    public async Task<List<long>> GetUserNearestNeighboursAsync(long userId, CancellationToken cancellationToken)
+    {
+        var userToDoListIds = await _context.UserToToDoListQuery
+            .Where(ut => ut.UserId == userId)
+            .Select(ut => ut.ToDoListId)
+            .ToListAsync(cancellationToken);
+
+        if (!userToDoListIds.Any())
+            return new List<long>();
+        
+        var neighbours = await _context.UserToToDoListQuery
+            .Where(ut => ut.UserId != userId)
+            .GroupBy(ut => ut.UserId)
+            .Select(g => new
+            {
+                UserId = g.Key,
+                CommonLists = g.Count(ut => userToDoListIds.Contains(ut.ToDoListId)),
+                TotalUserLists = g.Count(),
+                UniqueDifference = userToDoListIds.Count - g.Count(ut => userToDoListIds.Contains(ut.ToDoListId))
+            })
+            .Select(x => new
+            {
+                x.UserId,
+                Score = x.CommonLists - 0.5 * x.UniqueDifference
+            })
+            .OrderByDescending(x => x.Score)
+            .Take(10)
+            .Select(x => x.UserId)
+            .ToListAsync(cancellationToken);
+
+        return neighbours;
+    }
 }

@@ -96,7 +96,7 @@ public class ToDoTaskService : IToDoTaskService
 
     public Task<List<ToDoList>> GetRecommendedTaskListsAsync(long userId)
     {
-        throw new NotImplementedException();
+        return _toDoListRepository.GetAllAsync(CancellationToken.None);
     }
 
     public async Task<ToDoList> CreateTaskListAsync(long userId, string title, string? description, int requiredPoints, byte[]? imageData, string? imageMimeType)

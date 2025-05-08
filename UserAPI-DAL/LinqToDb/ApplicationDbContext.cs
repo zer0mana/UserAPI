@@ -7,7 +7,7 @@ namespace UserAPI_DAL.LinqToDb;
 public class ApplicationDbContext : DataConnection
 {
     public ApplicationDbContext() : base(new DataOptions()
-        .UsePostgreSQL("User ID=postgres;Password=123456;Host=db;Port=5432;Database=user-api;Pooling=true;"))
+        .UsePostgreSQL("User ID=postgres;Password=123456;Host=localhost;Port=15432;Database=user-api;Pooling=true;"))
     {
     }
 

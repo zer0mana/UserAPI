@@ -7,4 +7,6 @@ public interface IUserToToDoListRepository
     Task<long> Create(long userId, long taskId, CancellationToken cancellationToken);
     
     Task<List<UserToToDoList>> GetByUserId(long userId, CancellationToken cancellationToken);
+
+    Task<List<long>> GetUserNearestNeighboursAsync(long userId, CancellationToken cancellationToken);
 }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import authService from '../services/authService';
+import { Button, Box } from '@mui/material';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -41,7 +42,17 @@ const Login = () => {
                         required
                     />
                 </div>
-                <button type="submit">Войти</button>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 2 }}>
+                    <button type="submit">Войти</button>
+                    <Button
+                        component={Link}
+                        to="/reset-password"
+                        variant="text"
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Восстановить пароль
+                    </Button>
+                </Box>
             </form>
         </div>
     );

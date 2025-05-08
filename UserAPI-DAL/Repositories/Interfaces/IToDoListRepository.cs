@@ -11,4 +11,10 @@ public interface IToDoListRepository
     Task<long> CreateAsync(ToDoList toDoList, CancellationToken cancellationToken);
 
     Task<int> UpdateAsync(ToDoList toDoList, CancellationToken cancellationToken);
+
+    Task<List<ToDoList>> GetAllAsync(CancellationToken cancellationToken);
+
+    Task<List<long>> GetMostPopularExceptUsersAsync(long userId, CancellationToken cancellationToken);
+    
+    Task<List<long>> GetNewestExceptUsersAsync(long userId, CancellationToken cancellationToken);
 }

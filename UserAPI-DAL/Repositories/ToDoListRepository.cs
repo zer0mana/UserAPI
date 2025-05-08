@@ -27,6 +27,46 @@ public class ToDoListRepository : IToDoListRepository
         return await _context.ToDoListQuery
             .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
+    
+    public async Task<List<ToDoList>> GetAllAsync(CancellationToken cancellationToken)
+    {
+        return await _context.ToDoListQuery.ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<long>> GetMostPopularExceptUsersAsync(long userId, CancellationToken cancellationToken)
+    {
+        var userToDoListIds = await _context.UserToToDoListQuery
+            .Where(ut => ut.UserId == userId)
+            .Select(ut => ut.ToDoListId)
+            .ToListAsync(cancellationToken);
+        
+        var popularListIds = await _context.UserToToDoListQuery
+            .GroupBy(ut => ut.ToDoListId)
+            .Where(g => !userToDoListIds.Contains(g.Key))
+            .OrderByDescending(g => g.Count())
+            .Select(g => g.Key)
+            .Take(10)
+            .ToListAsync(cancellationToken);
+
+        return popularListIds;
+    }
+
+    public async Task<List<long>> GetNewestExceptUsersAsync(long userId, CancellationToken cancellationToken)
+    {
+        var userToDoListIds = await _context.UserToToDoListQuery
+            .Where(ut => ut.UserId == userId)
+            .Select(ut => ut.ToDoListId)
+            .ToListAsync(cancellationToken);
+        
+        var newestToDoListIds = await _context.ToDoListQuery
+            .Where(tl => !userToDoListIds.Contains(tl.Id))
+            .OrderByDescending(tl => tl.CreatedAt)
+            .Select(tl => tl.Id)
+            .Take(10)
+            .ToListAsync(cancellationToken);
+
+        return newestToDoListIds;
+    }
 
     public async Task<long> CreateAsync(ToDoList toDoList, CancellationToken cancellationToken)
     {
